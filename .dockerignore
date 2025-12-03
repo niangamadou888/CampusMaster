@@ -1,0 +1,32 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+.env.*
+
+# Logs
+logs
+*.log
+
+# Dependencies (will be installed in container)
+node_modules
+target
+
+# Build outputs (will be created in container)
+.next
+dist
+build
+out
