@@ -47,8 +47,8 @@ public class UserService {
         User adminUser = new User();
         adminUser.setUserFirstName("admin");
         adminUser.setUserLastName("admin");
-        adminUser.setUserEmail("admin@admin.com");
-        adminUser.setUserPassword(getEncodedPassword("admin123"));
+        adminUser.setUserEmail("admin@campusmaster.com");
+        adminUser.setUserPassword(getEncodedPassword("C@mpusm@sterAdmin123"));
         Set<Role> adminRoles = new HashSet<>();
         adminRoles.add(adminRole);
         adminUser.setRole(adminRoles);
