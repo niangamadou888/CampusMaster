@@ -1,4 +1,4 @@
-package com.campusmaster.controller;
+package com.campusmaster.Controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

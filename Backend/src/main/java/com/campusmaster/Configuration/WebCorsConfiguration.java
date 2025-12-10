@@ -1,4 +1,4 @@
-package com.campusmaster.config;
+package com.campusmaster.Configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +9,7 @@ import org.springframework.web.filter.CorsFilter;
 import java.util.Arrays;
 
 @Configuration
-public class CorsConfig {
+public class WebCorsConfiguration {
 
     @Bean
     public CorsFilter corsFilter() {
