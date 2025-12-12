@@ -47,8 +47,8 @@ public class UserService {
         User adminUser = new User();
         adminUser.setUserFirstName("admin");
         adminUser.setUserLastName("admin");
-        adminUser.setUserEmail("admin@campusmaster.com");
-        adminUser.setUserPassword(getEncodedPassword("C@mpusm@sterAdmin123"));
+        adminUser.setUserEmail("admin@admin.com");
+        adminUser.setUserPassword(getEncodedPassword("admin123"));
         Set<Role> adminRoles = new HashSet<>();
         adminRoles.add(adminRole);
         adminUser.setRole(adminRoles);
@@ -68,11 +68,79 @@ public class UserService {
          */
     }
 
+    // Method to update user information (only firstName, lastName, and email)
+
+
+    public User updateUserInfo(User updatedUser, String userEmail) {
+
+
+        Optional<User> userOptional = userDao.findById(userEmail);
+
+
+
+
+
+        if (userOptional.isPresent()) {
+
+
+            User user = userOptional.get();
+
+
+
+
+
+            // Update the fields
+
+
+            if (updatedUser.getUserFirstName() != null) {
+
+
+                user.setUserFirstName(updatedUser.getUserFirstName());
+
+
+            }
+
+
+            if (updatedUser.getUserLastName() != null) {
+
+
+                user.setUserLastName(updatedUser.getUserLastName());
+
+
+            }
+
+
+            if (updatedUser.getUserEmail() != null) {
+
+
+                user.setUserEmail(updatedUser.getUserEmail());
+
+
+            }
+
+
+
+
+
+            return userDao.save(user);
+
+
+        } else {
+
+
+            throw new RuntimeException("User not found with email: " + userEmail);
+
+
+        }
+
+
+    }
+
     public void suspendUser(String id) {
         Optional<User> userOptional = userDao.findById(id);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            user.setSuspended(true);
+            user.setIsSuspended(true);
             userDao.save(user);
         }
     }
@@ -81,7 +149,7 @@ public class UserService {
         Optional<User> userOptional = userDao.findById(id);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            user.setSuspended(false);
+            user.setIsSuspended(false);
             userDao.save(user);
         }
     }

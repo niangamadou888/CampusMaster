@@ -1,9 +1,12 @@
 package com.campusmaster.Controller;
 
 import com.campusmaster.Entity.User;
+import com.campusmaster.Service.JwtService;
 import com.campusmaster.Service.UserService;
+import com.campusmaster.Util.JwtUtil;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +14,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @PostConstruct
     public void initRolesAndUsers() {
@@ -38,6 +47,33 @@ public class UserController {
     @PreAuthorize("hasRole('Admin')")
     public void suspendUser(@PathVariable String id) {
         userService.suspendUser(id);
+    }
+
+    @GetMapping("/getUserInfo")
+    @PreAuthorize("hasRole('User')")
+    public ResponseEntity<User> getUserInfo(@RequestHeader("Authorization") String token) {
+        // Remove the "Bearer " prefix from the Authorization header
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        try {
+            User user = jwtService.getUserByToken(token);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(null); // Unauthorized
+        }
+    }
+
+    @PutMapping("/updateUserInfo")
+    @PreAuthorize("hasRole('User')")
+    public User updateUserInfo(@RequestBody User updatedUser, @RequestHeader("Authorization") String token) {
+        String userEmail = extractUserEmailFromToken(token); // Extract user email from token
+        return userService.updateUserInfo(updatedUser, userEmail);
+    }
+
+    private String extractUserEmailFromToken(String token) {
+        return jwtUtil.extractUsername(token.replace("Bearer ", ""));
     }
 
     @PutMapping("/{id}/unsuspend")

@@ -50,7 +50,7 @@ public class JwtController {
         userDao.save(user);
 
         // Envoyer l'email avec un lien contenant le token
-        String resetLink = "http://localhost:8080/reset-password?token=" + resetToken;
+        String resetLink = "http://localhost:4200/modify-password?token=" + resetToken;
         emailService.sendEmail(user.getUserEmail(), "Réinitialisation de votre mot de passe",
                 "Cliquez sur ce lien pour réinitialiser votre mot de passe : " + resetLink);
 
