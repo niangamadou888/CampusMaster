@@ -7,7 +7,7 @@ import {
 } from '@/types/auth';
 import { storage } from '@/utils/storage';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4500';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://campusmaster.onrender.com';
 
 class ApiError extends Error {
   constructor(public status: number, message: string) {

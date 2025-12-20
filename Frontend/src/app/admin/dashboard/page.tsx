@@ -154,7 +154,7 @@ function AdminDashboardContent() {
                     API Endpoint
                   </p>
                   <p className="mt-1 font-mono text-sm text-emerald-200">
-                    http://localhost:4500
+                    https://campusmaster.onrender.com
                   </p>
                 </div>
                 <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-100">
