@@ -56,139 +56,156 @@ function UserDashboardContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-gray-900">CampusMaster</h1>
+    <div className="relative min-h-screen overflow-hidden bg-slate-50">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-x-10 top-10 h-64 bg-gradient-to-r from-blue-200/60 via-sky-200/50 to-emerald-200/50 blur-3xl" />
+        <div className="absolute -left-12 bottom-10 h-72 w-72 rounded-full bg-gradient-to-br from-blue-400/25 via-indigo-300/25 to-sky-300/25 blur-3xl" />
+      </div>
+
+      <nav className="relative z-10 border-b border-white/40 bg-white/70 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-sky-500 text-white font-semibold shadow">
+              CM
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">
-                Welcome, {user?.userFirstName}
-              </span>
-              <button
-                onClick={logout}
-                className="text-sm font-medium text-gray-700 hover:text-gray-900"
-              >
-                Logout
-              </button>
+            <div>
+              <p className="text-sm font-semibold text-slate-900">CampusMaster</p>
+              <p className="text-xs text-slate-500">User workspace</p>
             </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="hidden text-sm text-slate-700 sm:inline">
+              Welcome, {user?.userFirstName}
+            </span>
+            <button
+              onClick={logout}
+              className="rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-200 hover:text-blue-700"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">User Dashboard</h2>
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+      <main className="relative z-10 mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-2xl backdrop-blur">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-600">
                 User
-              </span>
+              </p>
+              <h2 className="text-3xl font-black text-slate-900">User Dashboard</h2>
+              <p className="text-sm text-slate-600">
+                View your profile and keep your campus information up to date.
+              </p>
             </div>
+            <div className="inline-flex items-center rounded-full bg-gradient-to-r from-blue-600 to-sky-500 px-4 py-2 text-xs font-semibold text-white shadow-lg">
+              Profile active
+            </div>
+          </div>
 
-            {error && (
-              <div className="mb-4 rounded-md bg-red-50 p-4">
-                <div className="text-sm text-red-800">{error}</div>
+          {error && (
+            <div className="mt-4 rounded-xl border border-red-100 bg-red-50/80 p-3 text-sm text-red-800">
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/80 p-3 text-sm text-emerald-800">
+              {success}
+            </div>
+          )}
+
+          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[1.25fr_0.75fr]">
+            <div className="rounded-2xl border border-white/60 bg-white/80 p-5 shadow-sm backdrop-blur">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-slate-900">Profile information</h3>
+                {!isEditing && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="inline-flex items-center rounded-full bg-gradient-to-r from-blue-600 to-sky-500 px-4 py-2 text-xs font-semibold text-white shadow-md transition hover:shadow-lg"
+                  >
+                    Edit profile
+                  </button>
+                )}
               </div>
-            )}
-
-            {success && (
-              <div className="mb-4 rounded-md bg-green-50 p-4">
-                <div className="text-sm text-green-800">{success}</div>
-              </div>
-            )}
-
-            <div className="border-t border-gray-200 pt-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Profile Information
-              </h3>
 
               {!isEditing ? (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                       First Name
-                    </label>
-                    <p className="mt-1 text-sm text-gray-900">
+                    </p>
+                    <p className="mt-1 text-lg font-semibold text-slate-900">
                       {user?.userFirstName}
                     </p>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                  <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                       Last Name
-                    </label>
-                    <p className="mt-1 text-sm text-gray-900">
+                    </p>
+                    <p className="mt-1 text-lg font-semibold text-slate-900">
                       {user?.userLastName}
                     </p>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                  <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                       Email
-                    </label>
-                    <p className="mt-1 text-sm text-gray-900">
+                    </p>
+                    <p className="mt-1 text-lg font-semibold text-slate-900">
                       {user?.userEmail}
                     </p>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                  <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                       Role
-                    </label>
-                    <p className="mt-1 text-sm text-gray-900">
+                    </p>
+                    <p className="mt-1 text-lg font-semibold text-slate-900">
                       {user?.role.map((r) => r.roleName).join(', ')}
                     </p>
                   </div>
-                  <div className="pt-4">
-                    <button
-                      onClick={() => setIsEditing(true)}
-                      className="inline-flex justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                    >
-                      Edit Profile
-                    </button>
-                  </div>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label
-                      htmlFor="firstName"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      First Name
-                    </label>
-                    <input
-                      id="firstName"
-                      name="firstName"
-                      type="text"
-                      required
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                    />
+                <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="firstName"
+                        className="text-sm font-semibold text-slate-800"
+                      >
+                        First Name
+                      </label>
+                      <input
+                        id="firstName"
+                        name="firstName"
+                        type="text"
+                        required
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        className="w-full rounded-xl border border-slate-200 bg-white/70 px-3 py-3 text-slate-900 shadow-sm outline-none ring-2 ring-transparent transition focus:border-blue-300 focus:ring-blue-100"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="lastName"
+                        className="text-sm font-semibold text-slate-800"
+                      >
+                        Last Name
+                      </label>
+                      <input
+                        id="lastName"
+                        name="lastName"
+                        type="text"
+                        required
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        className="w-full rounded-xl border border-slate-200 bg-white/70 px-3 py-3 text-slate-900 shadow-sm outline-none ring-2 ring-transparent transition focus:border-blue-300 focus:ring-blue-100"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label
-                      htmlFor="lastName"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Last Name
-                    </label>
-                    <input
-                      id="lastName"
-                      name="lastName"
-                      type="text"
-                      required
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
+
+                  <div className="space-y-2">
+                    <label htmlFor="email" className="text-sm font-semibold text-slate-800">
                       Email
                     </label>
                     <input
@@ -198,27 +215,60 @@ function UserDashboardContent() {
                       required
                       value={formData.email}
                       onChange={handleChange}
-                      className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                      className="w-full rounded-xl border border-slate-200 bg-white/70 px-3 py-3 text-slate-900 shadow-sm outline-none ring-2 ring-transparent transition focus:border-blue-300 focus:ring-blue-100"
                     />
                   </div>
-                  <div className="flex space-x-3 pt-4">
+
+                  <div className="flex flex-wrap gap-3 pt-2">
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="inline-flex justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50"
+                      className="inline-flex justify-center rounded-full bg-gradient-to-r from-blue-600 to-sky-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {isLoading ? 'Saving...' : 'Save Changes'}
+                      {isLoading ? 'Saving...' : 'Save changes'}
                     </button>
                     <button
                       type="button"
                       onClick={handleCancel}
-                      className="inline-flex justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                      className="inline-flex justify-center rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-blue-200 hover:text-blue-700"
                     >
                       Cancel
                     </button>
                   </div>
                 </form>
               )}
+            </div>
+
+            <div className="rounded-2xl border border-white/60 bg-gradient-to-br from-slate-900 to-slate-800 p-5 text-white shadow-lg backdrop-blur">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.14em] text-slate-300">
+                    Account
+                  </p>
+                  <p className="text-lg font-semibold text-white">Status</p>
+                </div>
+                <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-100">
+                  Active
+                </span>
+              </div>
+              <p className="mt-4 text-sm text-slate-200">
+                Keep your details updated to get the most from CampusMaster.
+              </p>
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                {[
+                  { label: 'Role', value: user?.role.map((r) => r.roleName).join(', ') },
+                  { label: 'Email', value: user?.userEmail },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-xl bg-white/10 p-3">
+                    <p className="text-xs uppercase tracking-wide text-slate-200">
+                      {item.label}
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-white break-words">
+                      {item.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
