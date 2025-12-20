@@ -46,7 +46,7 @@ public class WebSecurityConfiguration {
         http
                 .csrf(csrf -> csrf.disable()) // Désactiver CSRF
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/authenticate", "api/health","api/annonces", "api/candidatures", "api/annee-academique", "api/candidatures/soumettre","api/annee-academique/{id}","api/candidatures", "api/annonces/{id}", "/getUserInfo", "/updateUserInfo","/forgot-password", "/reset-password","api/candidatures/user/{userId}", "api/candidatures/annonce/{annonceId}").permitAll()
+                        .requestMatchers("/authenticate","api/cours", "api/cours/{id}", "api/cours/soumettre", "api/cours/download/{type}/{id}", "/updateUserInfo", "/getUserInfo", "/forgot-password", "/reset-password", "/registerNewUser").permitAll()
                         .requestMatchers(HttpHeaders.ALLOW).permitAll()
                         .anyRequest().authenticated()
                 )
