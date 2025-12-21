@@ -123,6 +123,13 @@ export const authApi = {
     });
     return response.json();
   },
+
+  async getAllUsers(): Promise<User[]> {
+    const response = await fetchWithAuth('/all-users', {
+      method: 'GET',
+    });
+    return response.json();
+  },
 };
 
 export { ApiError };

@@ -99,4 +99,10 @@ public class UserController {
     public java.util.List<User> getApprovedTeachers() {
         return userService.getApprovedTeachers();
     }
+
+    @GetMapping("/all-users")
+    @PreAuthorize("hasRole('Admin')")
+    public java.util.List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
 }

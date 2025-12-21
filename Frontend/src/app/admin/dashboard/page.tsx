@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { authApi } from '@/services/api';
 import { User } from '@/types/auth';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import Link from 'next/link';
 
 function AdminDashboardContent() {
   const { user, logout } = useAuth();
@@ -114,6 +115,12 @@ function AdminDashboardContent() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <Link
+              href="/admin/users"
+              className="text-sm text-slate-600 hover:text-blue-600 transition"
+            >
+              All Users
+            </Link>
             <span className="hidden text-sm text-slate-700 sm:inline">
               Welcome, {user?.userFirstName}
             </span>

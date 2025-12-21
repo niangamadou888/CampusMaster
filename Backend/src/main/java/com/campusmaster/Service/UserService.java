@@ -181,4 +181,10 @@ public class UserService {
         return userDao.findApprovedTeachers();
     }
 
+    public java.util.List<User> getAllUsers() {
+        java.util.List<User> users = new java.util.ArrayList<>();
+        userDao.findAll().forEach(users::add);
+        return users;
+    }
+
 }

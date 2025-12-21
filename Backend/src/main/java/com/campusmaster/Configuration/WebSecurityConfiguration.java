@@ -47,7 +47,7 @@ public class WebSecurityConfiguration {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable()) // Désactiver CSRF
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/authenticate","api/cours", "api/cours/{id}", "api/cours/soumettre", "api/cours/download/{type}/{id}", "/updateUserInfo", "/getUserInfo", "/forgot-password", "/reset-password", "/registerNewUser", "/pending-teachers", "/approved-teachers").permitAll()
+                        .requestMatchers("/authenticate","api/cours", "api/cours/{id}", "api/cours/soumettre", "api/cours/download/{type}/{id}", "/updateUserInfo", "/getUserInfo", "/forgot-password", "/reset-password", "/registerNewUser", "/pending-teachers", "/approved-teachers", "/all-users").permitAll()
                         .requestMatchers(HttpHeaders.ALLOW).permitAll()
                         .anyRequest().authenticated()
                 )
