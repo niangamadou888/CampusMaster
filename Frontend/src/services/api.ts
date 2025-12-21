@@ -53,9 +53,11 @@ export const authApi = {
   },
 
   async register(data: RegisterRequest): Promise<User> {
-    const response = await fetchWithAuth('/registerNewUser', {
+    const { role, ...userData } = data;
+    const url = role ? `/registerNewUser?role=${encodeURIComponent(role)}` : '/registerNewUser';
+    const response = await fetchWithAuth(url, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(userData),
     });
     return response.json();
   },
@@ -104,6 +106,20 @@ export const authApi = {
   async unsuspendUser(userEmail: string): Promise<User> {
     const response = await fetchWithAuth(`/${encodeURIComponent(userEmail)}/unsuspend`, {
       method: 'PUT',
+    });
+    return response.json();
+  },
+
+  async getPendingTeachers(): Promise<User[]> {
+    const response = await fetchWithAuth('/pending-teachers', {
+      method: 'GET',
+    });
+    return response.json();
+  },
+
+  async getApprovedTeachers(): Promise<User[]> {
+    const response = await fetchWithAuth('/approved-teachers', {
+      method: 'GET',
     });
     return response.json();
   },

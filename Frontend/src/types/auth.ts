@@ -28,6 +28,7 @@ export interface RegisterRequest {
   userFirstName: string;
   userLastName: string;
   userPassword: string;
+  role?: 'User' | 'Teacher';
 }
 
 export interface ForgotPasswordRequest {
@@ -54,5 +55,6 @@ export interface AuthContextType {
   updateUser: (data: UpdateUserRequest) => Promise<void>;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isTeacher: boolean;
   isLoading: boolean;
 }

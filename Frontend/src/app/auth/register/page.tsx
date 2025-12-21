@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
 export default function RegisterPage() {
@@ -11,12 +12,15 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
+    role: 'User' as 'User' | 'Teacher',
   });
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { register } = useAuth();
+  const router = useRouter();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -26,6 +30,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -45,9 +50,17 @@ export default function RegisterPage() {
         userFirstName: formData.firstName,
         userLastName: formData.lastName,
         userPassword: formData.password,
+        role: formData.role,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      if (err instanceof Error && err.message === 'TEACHER_PENDING_APPROVAL') {
+        setSuccessMessage('Your teacher account has been created successfully! Please wait for admin approval before logging in.');
+        setTimeout(() => {
+          router.push('/auth/login');
+        }, 3000);
+      } else {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -103,6 +116,12 @@ export default function RegisterPage() {
             {error && (
               <div className="rounded-xl border border-red-100 bg-red-50/80 p-3 text-sm text-red-800">
                 {error}
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="rounded-xl border border-emerald-100 bg-emerald-50/80 p-3 text-sm text-emerald-800">
+                {successMessage}
               </div>
             )}
 
@@ -201,6 +220,30 @@ export default function RegisterPage() {
                   className="w-full rounded-xl border border-slate-200 bg-white/70 px-3 py-3 text-slate-900 shadow-sm outline-none ring-2 ring-transparent transition focus:border-blue-300 focus:ring-blue-100"
                   placeholder="Re-enter password"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="role"
+                  className="text-sm font-semibold text-slate-800"
+                >
+                  I am registering as
+                </label>
+                <select
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-slate-200 bg-white/70 px-3 py-3 text-slate-900 shadow-sm outline-none ring-2 ring-transparent transition focus:border-blue-300 focus:ring-blue-100"
+                >
+                  <option value="User">Student / User</option>
+                  <option value="Teacher">Teacher</option>
+                </select>
+                {formData.role === 'Teacher' && (
+                  <p className="text-xs text-amber-600 mt-1">
+                    Note: Teacher accounts require admin approval before you can log in.
+                  </p>
+                )}
               </div>
             </div>
 

@@ -22,12 +22,22 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public User registerNewUser(User user) {
-        Role role = roleDao.findById("User").get();
+    public User registerNewUser(User user, String roleName) {
+        // Default to "User" role if not specified
+        final String finalRoleName = (roleName == null || roleName.isEmpty()) ? "User" : roleName;
+
+        Role role = roleDao.findById(finalRoleName).orElseThrow(
+            () -> new RuntimeException("Role not found: " + finalRoleName)
+        );
 
         Set<Role> roles = new HashSet<>();
         roles.add(role);
         user.setRole(roles);
+
+        // Auto-suspend teacher accounts until admin approval
+        if ("Teacher".equals(finalRoleName)) {
+            user.setIsSuspended(true);
+        }
 
         user.setUserPassword(getEncodedPassword(user.getUserPassword()));
         return userDao.save(user);
@@ -43,6 +53,11 @@ public class UserService {
         userRole.setRoleName("User");
         userRole.setRoleDescription("Default role for newly create record");
         roleDao.save(userRole);
+
+        Role teacherRole = new Role();
+        teacherRole.setRoleName("Teacher");
+        teacherRole.setRoleDescription("Teacher role - requires admin approval");
+        roleDao.save(teacherRole);
 
         User adminUser = new User();
         adminUser.setUserFirstName("admin");
@@ -156,6 +171,14 @@ public class UserService {
 
     public String getEncodedPassword(String password) {
         return passwordEncoder.encode(password);
+    }
+
+    public java.util.List<User> getPendingTeachers() {
+        return userDao.findPendingTeachers();
+    }
+
+    public java.util.List<User> getApprovedTeachers() {
+        return userDao.findApprovedTeachers();
     }
 
 }

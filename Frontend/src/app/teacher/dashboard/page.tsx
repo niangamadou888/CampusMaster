@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
-function UserDashboardContent() {
+function TeacherDashboardContent() {
   const { user, logout, updateUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -58,19 +58,19 @@ function UserDashboardContent() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-50">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-x-10 top-10 h-64 bg-gradient-to-r from-blue-200/60 via-sky-200/50 to-emerald-200/50 blur-3xl" />
-        <div className="absolute -left-12 bottom-10 h-72 w-72 rounded-full bg-gradient-to-br from-blue-400/25 via-indigo-300/25 to-sky-300/25 blur-3xl" />
+        <div className="absolute inset-x-10 top-10 h-64 bg-gradient-to-r from-purple-200/60 via-indigo-200/50 to-blue-200/50 blur-3xl" />
+        <div className="absolute -left-12 bottom-10 h-72 w-72 rounded-full bg-gradient-to-br from-purple-400/25 via-indigo-300/25 to-blue-300/25 blur-3xl" />
       </div>
 
       <nav className="relative z-10 border-b border-white/40 bg-white/70 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-sky-500 text-white font-semibold shadow">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-indigo-500 text-white font-semibold shadow">
               CM
             </div>
             <div>
               <p className="text-sm font-semibold text-slate-900">CampusMaster</p>
-              <p className="text-xs text-slate-500">User workspace</p>
+              <p className="text-xs text-slate-500">Teacher workspace</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -79,7 +79,7 @@ function UserDashboardContent() {
             </span>
             <button
               onClick={logout}
-              className="rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-200 hover:text-blue-700"
+              className="rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-purple-200 hover:text-purple-700"
             >
               Logout
             </button>
@@ -91,16 +91,16 @@ function UserDashboardContent() {
         <div className="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-2xl backdrop-blur">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-600">
-                User
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-purple-600">
+                Teacher
               </p>
-              <h2 className="text-3xl font-black text-slate-900">User Dashboard</h2>
+              <h2 className="text-3xl font-black text-slate-900">Teacher Dashboard</h2>
               <p className="text-sm text-slate-600">
-                View your profile and keep your campus information up to date.
+                Manage your courses, students, and teaching materials.
               </p>
             </div>
-            <div className="inline-flex items-center rounded-full bg-gradient-to-r from-blue-600 to-sky-500 px-4 py-2 text-xs font-semibold text-white shadow-lg">
-              Profile active
+            <div className="inline-flex items-center rounded-full bg-gradient-to-r from-purple-600 to-indigo-500 px-4 py-2 text-xs font-semibold text-white shadow-lg">
+              Educator access
             </div>
           </div>
 
@@ -123,7 +123,7 @@ function UserDashboardContent() {
                 {!isEditing && (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="inline-flex items-center rounded-full bg-gradient-to-r from-blue-600 to-sky-500 px-4 py-2 text-xs font-semibold text-white shadow-md transition hover:shadow-lg"
+                    className="inline-flex items-center rounded-full bg-gradient-to-r from-purple-600 to-indigo-500 px-4 py-2 text-xs font-semibold text-white shadow-md transition hover:shadow-lg"
                   >
                     Edit profile
                   </button>
@@ -182,7 +182,7 @@ function UserDashboardContent() {
                         required
                         value={formData.firstName}
                         onChange={handleChange}
-                        className="w-full rounded-xl border border-slate-200 bg-white/70 px-3 py-3 text-slate-900 shadow-sm outline-none ring-2 ring-transparent transition focus:border-blue-300 focus:ring-blue-100"
+                        className="w-full rounded-xl border border-slate-200 bg-white/70 px-3 py-3 text-slate-900 shadow-sm outline-none ring-2 ring-transparent transition focus:border-purple-300 focus:ring-purple-100"
                       />
                     </div>
                     <div className="space-y-2">
@@ -199,7 +199,7 @@ function UserDashboardContent() {
                         required
                         value={formData.lastName}
                         onChange={handleChange}
-                        className="w-full rounded-xl border border-slate-200 bg-white/70 px-3 py-3 text-slate-900 shadow-sm outline-none ring-2 ring-transparent transition focus:border-blue-300 focus:ring-blue-100"
+                        className="w-full rounded-xl border border-slate-200 bg-white/70 px-3 py-3 text-slate-900 shadow-sm outline-none ring-2 ring-transparent transition focus:border-purple-300 focus:ring-purple-100"
                       />
                     </div>
                   </div>
@@ -215,7 +215,7 @@ function UserDashboardContent() {
                       required
                       value={formData.email}
                       onChange={handleChange}
-                      className="w-full rounded-xl border border-slate-200 bg-white/70 px-3 py-3 text-slate-900 shadow-sm outline-none ring-2 ring-transparent transition focus:border-blue-300 focus:ring-blue-100"
+                      className="w-full rounded-xl border border-slate-200 bg-white/70 px-3 py-3 text-slate-900 shadow-sm outline-none ring-2 ring-transparent transition focus:border-purple-300 focus:ring-purple-100"
                     />
                   </div>
 
@@ -223,14 +223,14 @@ function UserDashboardContent() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="inline-flex justify-center rounded-full bg-gradient-to-r from-blue-600 to-sky-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex justify-center rounded-full bg-gradient-to-r from-purple-600 to-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {isLoading ? 'Saving...' : 'Save changes'}
                     </button>
                     <button
                       type="button"
                       onClick={handleCancel}
-                      className="inline-flex justify-center rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-blue-200 hover:text-blue-700"
+                      className="inline-flex justify-center rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-purple-200 hover:text-purple-700"
                     >
                       Cancel
                     </button>
@@ -252,7 +252,7 @@ function UserDashboardContent() {
                 </span>
               </div>
               <p className="mt-4 text-sm text-slate-200">
-                Keep your details updated to get the most from CampusMaster.
+                Your teacher account is active. You can manage courses and interact with students.
               </p>
               <div className="mt-5 grid grid-cols-2 gap-3">
                 {[
@@ -271,16 +271,46 @@ function UserDashboardContent() {
               </div>
             </div>
           </div>
+
+          <div className="mt-8 rounded-2xl border border-white/60 bg-white/80 p-5 shadow-sm backdrop-blur">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">Teaching Tools</h3>
+                <p className="text-sm text-slate-600">
+                  Manage your courses, materials, and student interactions.
+                </p>
+              </div>
+              <span className="rounded-full bg-purple-50 px-3 py-1 text-xs font-semibold text-purple-700">
+                Coming Soon
+              </span>
+            </div>
+            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {[
+                { title: 'Courses', description: 'Create and manage your courses', icon: '📚' },
+                { title: 'Materials', description: 'Upload teaching materials', icon: '📄' },
+                { title: 'Students', description: 'View and interact with students', icon: '👥' },
+              ].map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-xl border border-slate-100 bg-slate-50/60 p-4 text-center"
+                >
+                  <div className="text-3xl">{item.icon}</div>
+                  <p className="mt-2 font-semibold text-slate-900">{item.title}</p>
+                  <p className="text-xs text-slate-500">{item.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </main>
     </div>
   );
 }
 
-export default function UserDashboard() {
+export default function TeacherDashboard() {
   return (
-    <ProtectedRoute requireUser>
-      <UserDashboardContent />
+    <ProtectedRoute requireTeacher>
+      <TeacherDashboardContent />
     </ProtectedRoute>
   );
 }

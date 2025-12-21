@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { authApi } from '@/services/api';
+import { User } from '@/types/auth';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 function AdminDashboardContent() {
@@ -11,6 +12,50 @@ function AdminDashboardContent() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingTeachers, setPendingTeachers] = useState<User[]>([]);
+  const [loadingTeachers, setLoadingTeachers] = useState(true);
+  const [teacherLoadError, setTeacherLoadError] = useState('');
+
+  useEffect(() => {
+    loadPendingTeachers();
+  }, []);
+
+  const loadPendingTeachers = async () => {
+    try {
+      setLoadingTeachers(true);
+      setTeacherLoadError('');
+      const teachers = await authApi.getPendingTeachers();
+      setPendingTeachers(teachers);
+    } catch (err) {
+      console.error('Failed to load pending teachers:', err);
+      setTeacherLoadError(err instanceof Error ? err.message : 'Failed to load pending teachers');
+    } finally {
+      setLoadingTeachers(false);
+    }
+  };
+
+  const handleApproveTeacher = async (teacherEmail: string) => {
+    try {
+      await authApi.unsuspendUser(teacherEmail);
+      setSuccess(`Teacher ${teacherEmail} has been approved successfully`);
+      // Reload pending teachers list
+      loadPendingTeachers();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to approve teacher');
+    }
+  };
+
+  const handleRejectTeacher = async (teacherEmail: string) => {
+    try {
+      // For rejection, we can suspend them (they're already suspended, but this confirms)
+      await authApi.suspendUser(teacherEmail);
+      setSuccess(`Teacher ${teacherEmail} has been rejected`);
+      // Reload pending teachers list
+      loadPendingTeachers();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to reject teacher');
+    }
+  };
 
   const handleSuspend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -257,6 +302,70 @@ function AdminDashboardContent() {
                 ))}
               </div>
             </div>
+          </div>
+
+          <div className="mt-8 rounded-2xl border border-white/60 bg-white/80 p-5 shadow-sm backdrop-blur">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">Teacher Approvals</h3>
+                <p className="text-sm text-slate-600">
+                  Review and approve pending teacher registrations.
+                </p>
+              </div>
+              <span className="rounded-full bg-purple-50 px-3 py-1 text-xs font-semibold text-purple-700">
+                {pendingTeachers.length} Pending
+              </span>
+            </div>
+
+            {loadingTeachers ? (
+              <div className="mt-6 flex justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+              </div>
+            ) : teacherLoadError ? (
+              <div className="mt-6 rounded-xl border border-red-100 bg-red-50/60 p-6 text-center">
+                <p className="text-sm text-red-600">{teacherLoadError}</p>
+                <button
+                  onClick={loadPendingTeachers}
+                  className="mt-2 text-sm font-semibold text-red-700 hover:text-red-800"
+                >
+                  Try again
+                </button>
+              </div>
+            ) : pendingTeachers.length === 0 ? (
+              <div className="mt-6 rounded-xl border border-slate-100 bg-slate-50/60 p-6 text-center">
+                <p className="text-sm text-slate-500">No pending teacher approvals</p>
+              </div>
+            ) : (
+              <div className="mt-6 space-y-3">
+                {pendingTeachers.map((teacher) => (
+                  <div
+                    key={teacher.userEmail}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50/60 p-4"
+                  >
+                    <div>
+                      <p className="font-semibold text-slate-900">
+                        {teacher.userFirstName} {teacher.userLastName}
+                      </p>
+                      <p className="text-sm text-slate-500">{teacher.userEmail}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleApproveTeacher(teacher.userEmail)}
+                        className="inline-flex justify-center rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:shadow-lg"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => handleRejectTeacher(teacher.userEmail)}
+                        className="inline-flex justify-center rounded-full bg-gradient-to-r from-red-500 to-rose-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:shadow-lg"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main>

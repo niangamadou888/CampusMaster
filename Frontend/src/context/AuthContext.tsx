@@ -42,6 +42,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         userPassword: password,
       });
 
+      // Check if account is suspended
+      if (response.user.isSuspended) {
+        const isTeacher = response.user.role.some((r) => r.roleName === 'Teacher');
+        if (isTeacher) {
+          throw new Error('Your teacher account is pending approval. Please wait for an admin to approve your registration.');
+        } else {
+          throw new Error('Your account has been suspended. Please contact an administrator.');
+        }
+      }
+
       storage.setToken(response.jwtToken);
       storage.setUser(response.user);
 
@@ -49,7 +59,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(response.user);
 
       const isAdmin = response.user.role.some((r) => r.roleName === 'Admin');
-      router.push(isAdmin ? '/admin/dashboard' : '/user/dashboard');
+      const isTeacher = response.user.role.some((r) => r.roleName === 'Teacher');
+
+      if (isAdmin) {
+        router.push('/admin/dashboard');
+      } else if (isTeacher) {
+        router.push('/teacher/dashboard');
+      } else {
+        router.push('/user/dashboard');
+      }
     } catch (error) {
       if (error instanceof ApiError) {
         throw new Error(
@@ -64,9 +82,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (data: RegisterRequest) => {
     try {
-      await authApi.register(data);
+      const registeredUser = await authApi.register(data);
+
+      // If registering as teacher, don't auto-login (account is suspended)
+      if (data.role === 'Teacher') {
+        // Teacher accounts need admin approval, redirect to login with message
+        throw new Error('TEACHER_PENDING_APPROVAL');
+      }
+
       await login(data.userEmail, data.userPassword);
     } catch (error) {
+      if (error instanceof Error && error.message === 'TEACHER_PENDING_APPROVAL') {
+        throw error;
+      }
       if (error instanceof ApiError) {
         throw new Error(
           error.status === 400
@@ -100,6 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const isAuthenticated = !!token && !!user;
   const isAdmin = user?.role.some((r) => r.roleName === 'Admin') ?? false;
+  const isTeacher = user?.role.some((r) => r.roleName === 'Teacher') ?? false;
 
   const value: AuthContextType = {
     user,
@@ -110,6 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     updateUser,
     isAuthenticated,
     isAdmin,
+    isTeacher,
     isLoading,
   };
 

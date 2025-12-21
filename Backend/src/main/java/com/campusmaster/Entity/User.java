@@ -63,12 +63,12 @@ public class User {
         this.userPassword = userPassword;
     }
 
-    public Boolean getSuspended() {
+    public Boolean getIsSuspended() {
         return isSuspended;
     }
 
-    public void setSuspended(Boolean suspended) {
-        isSuspended = suspended;
+    public void setIsSuspended(Boolean isSuspended) {
+        this.isSuspended = isSuspended;
     }
 
     public String getResetToken() {
