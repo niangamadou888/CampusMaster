@@ -305,8 +305,25 @@ export const materialApi = {
 
   async download(courseId: number, materialId: number, fileName: string): Promise<void> {
     const url = await this.getDownloadUrl(courseId, materialId);
-    // Open the Cloudinary URL in a new tab for download
-    window.open(url, '_blank');
+
+    try {
+      // Fetch the file as a blob
+      const response = await fetch(url);
+      const blob = await response.blob();
+
+      // Create a download link with the proper filename
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = fileName; // Use the original filename with extension
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      // Fallback to opening in new tab if fetch fails
+      window.open(url, '_blank');
+    }
   },
 };
 

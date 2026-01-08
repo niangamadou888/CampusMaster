@@ -23,14 +23,47 @@ public class CloudinaryService {
      * @return Map containing upload result with "secure_url" and "public_id"
      */
     public Map<String, Object> uploadFile(MultipartFile file, String folder) throws IOException {
+        String originalFilename = file.getOriginalFilename();
+        String resourceType = determineResourceType(originalFilename);
+
         Map<String, Object> options = ObjectUtils.asMap(
                 "folder", "campusmaster/" + folder,
-                "resource_type", "auto",
+                "resource_type", resourceType,
                 "access_mode", "public",
                 "type", "upload"
         );
 
         return cloudinary.uploader().upload(file.getBytes(), options);
+    }
+
+    /**
+     * Determine the appropriate Cloudinary resource type based on file extension
+     * @param filename The original filename
+     * @return The resource type (image, video, or raw)
+     */
+    private String determineResourceType(String filename) {
+        if (filename == null) {
+            return "raw";
+        }
+
+        String extension = filename.toLowerCase();
+        int dotIndex = extension.lastIndexOf('.');
+        if (dotIndex > 0) {
+            extension = extension.substring(dotIndex + 1);
+        }
+
+        // Images
+        if (extension.matches("jpg|jpeg|png|gif|bmp|webp|svg|ico")) {
+            return "image";
+        }
+
+        // Videos
+        if (extension.matches("mp4|avi|mov|mkv|webm|flv|wmv")) {
+            return "video";
+        }
+
+        // All other files (PDF, DOC, DOCX, PPT, PPTX, etc.) should be raw
+        return "raw";
     }
 
     /**
@@ -149,10 +182,29 @@ public class CloudinaryService {
             return generateSignedUrlFromUrl(filePath);
         }
 
+        // Extract file extension from the URL to check for documents
+        String fileExtension = null;
+        if (filePath != null) {
+            int lastDotIndex = filePath.lastIndexOf('.');
+            if (lastDotIndex > 0) {
+                fileExtension = filePath.substring(lastDotIndex + 1).toLowerCase();
+                // Remove any query params
+                int queryIndex = fileExtension.indexOf('?');
+                if (queryIndex > 0) {
+                    fileExtension = fileExtension.substring(0, queryIndex);
+                }
+            }
+        }
+
         // Determine resource type from the stored URL
         String resourceType = "raw"; // Default to raw for documents
         if (filePath != null) {
             if (filePath.contains("/image/")) {
+                // Check if this is a document that was incorrectly uploaded as image
+                if (isDocumentExtension(fileExtension)) {
+                    // For documents uploaded as images, use image type with format
+                    return generateSignedUrlWithFormat(publicId, "image", fileExtension);
+                }
                 resourceType = "image";
             } else if (filePath.contains("/video/")) {
                 resourceType = "video";
@@ -172,20 +224,35 @@ public class CloudinaryService {
             return null;
         }
 
-        String publicId = extractPublicIdWithExtension(cloudinaryUrl);
-        if (publicId == null) {
+        String publicIdWithExt = extractPublicIdWithExtension(cloudinaryUrl);
+        if (publicIdWithExt == null) {
             return cloudinaryUrl; // Return original if we can't parse it
         }
 
-        // Determine resource type from URL
+        // Extract file extension from URL
+        String fileExtension = null;
+        int lastDotIndex = publicIdWithExt.lastIndexOf('.');
+        if (lastDotIndex > 0) {
+            fileExtension = publicIdWithExt.substring(lastDotIndex + 1).toLowerCase();
+        }
+
+        // Determine resource type from URL path
         String resourceType = "raw"; // Default to raw for documents
+        String publicId = publicIdWithExt;
+
         if (cloudinaryUrl.contains("/image/")) {
-            resourceType = "image";
-            // For images, remove the extension from public_id
-            publicId = extractPublicId(cloudinaryUrl);
+            // Check if this is actually a document that was incorrectly uploaded as image
+            if (isDocumentExtension(fileExtension)) {
+                // For documents uploaded as images, we need to use image type but include format
+                resourceType = "image";
+                publicId = extractPublicId(cloudinaryUrl); // Remove extension for image type
+                return generateSignedUrlWithFormat(publicId, resourceType, fileExtension);
+            } else {
+                resourceType = "image";
+                publicId = extractPublicId(cloudinaryUrl);
+            }
         } else if (cloudinaryUrl.contains("/video/")) {
             resourceType = "video";
-            // For videos, remove the extension from public_id
             publicId = extractPublicId(cloudinaryUrl);
         }
         // For raw resources, keep the extension in public_id
@@ -195,6 +262,31 @@ public class CloudinaryService {
         }
 
         return generateSignedUrl(publicId, resourceType);
+    }
+
+    /**
+     * Check if the extension indicates a document type
+     */
+    private boolean isDocumentExtension(String extension) {
+        if (extension == null) return false;
+        return extension.matches("pdf|doc|docx|ppt|pptx|xls|xlsx|txt|rtf|odt|ods|odp");
+    }
+
+    /**
+     * Generate a signed URL with explicit format
+     */
+    public String generateSignedUrlWithFormat(String publicId, String resourceType, String format) {
+        if (publicId == null || publicId.isEmpty()) {
+            return null;
+        }
+
+        return cloudinary.url()
+                .resourceType(resourceType)
+                .type("upload")
+                .signed(true)
+                .secure(true)
+                .format(format)
+                .generate(publicId);
     }
 
     /**
