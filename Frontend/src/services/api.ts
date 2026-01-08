@@ -21,10 +21,16 @@ async function fetchWithAuth(
   options: RequestInit = {}
 ): Promise<Response> {
   const token = storage.getToken();
+  const isFormData = options.body instanceof FormData;
+
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   };
+
+  // Don't set Content-Type for FormData - browser will set it with boundary
+  if (!isFormData) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;

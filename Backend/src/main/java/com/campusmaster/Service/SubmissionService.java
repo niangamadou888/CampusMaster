@@ -101,13 +101,18 @@ public class SubmissionService {
     }
 
     /**
-     * Get the download URL for a submission (Cloudinary URL)
+     * Get the download URL for a submission (signed Cloudinary URL)
      */
     public String getDownloadUrl(Long submissionId) {
         Submission submission = submissionDAO.findById(submissionId)
                 .orElseThrow(() -> new RuntimeException("Submission not found with id: " + submissionId));
 
-        return submission.getFilePath();  // This is now the Cloudinary URL
+        // Generate signed URL for secure access using stored public ID
+        String signedUrl = cloudinaryService.generateSignedUrlFromPublicId(
+                submission.getCloudinaryPublicId(),
+                submission.getFilePath()
+        );
+        return signedUrl != null ? signedUrl : submission.getFilePath();
     }
 
     public List<Submission> getUngradedSubmissions(Long assignmentId) {

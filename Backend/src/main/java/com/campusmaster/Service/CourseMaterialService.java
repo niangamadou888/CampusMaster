@@ -78,10 +78,10 @@ public class CourseMaterialService {
             throw new RuntimeException("You are not authorized to delete this material");
         }
 
-        // Delete file from Cloudinary
+        // Delete file from Cloudinary using URL to determine resource type
         String publicId = material.getCloudinaryPublicId();
         if (publicId != null && !publicId.isEmpty()) {
-            cloudinaryService.deleteFile(publicId);
+            cloudinaryService.deleteFileWithUrl(publicId, material.getFilePath());
         }
 
         // Delete database record
@@ -99,7 +99,7 @@ public class CourseMaterialService {
     }
 
     /**
-     * Get the download URL for a material (Cloudinary URL)
+     * Get the download URL for a material (signed Cloudinary URL)
      */
     @Transactional
     public String getDownloadUrl(Long materialId) {
@@ -109,7 +109,12 @@ public class CourseMaterialService {
         // Increment download count
         incrementDownloadCount(materialId);
 
-        return material.getFilePath();  // This is now the Cloudinary URL
+        // Generate signed URL for secure access using stored public ID
+        String signedUrl = cloudinaryService.generateSignedUrlFromPublicId(
+                material.getCloudinaryPublicId(),
+                material.getFilePath()
+        );
+        return signedUrl != null ? signedUrl : material.getFilePath();
     }
 
     private String getFileExtension(String filename) {
