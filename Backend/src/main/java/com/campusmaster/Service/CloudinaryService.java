@@ -24,7 +24,9 @@ public class CloudinaryService {
     public Map<String, Object> uploadFile(MultipartFile file, String folder) throws IOException {
         Map<String, Object> options = ObjectUtils.asMap(
                 "folder", "campusmaster/" + folder,
-                "resource_type", "auto"
+                "resource_type", "auto",
+                "access_mode", "public",
+                "type", "upload"
         );
 
         return cloudinary.uploader().upload(file.getBytes(), options);
