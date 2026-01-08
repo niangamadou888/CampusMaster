@@ -47,7 +47,23 @@ public class WebSecurityConfiguration {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable()) // Désactiver CSRF
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/authenticate","api/cours", "api/cours/{id}", "api/cours/soumettre", "api/cours/download/{type}/{id}", "/updateUserInfo", "/getUserInfo", "/forgot-password", "/reset-password", "/registerNewUser", "/pending-teachers", "/approved-teachers", "/all-users").permitAll()
+                        // Public authentication endpoints
+                        .requestMatchers("/authenticate", "/registerNewUser", "/forgot-password", "/reset-password").permitAll()
+                        // Public user endpoints
+                        .requestMatchers("/updateUserInfo", "/getUserInfo", "/pending-teachers", "/approved-teachers", "/all-users").permitAll()
+                        // Public API endpoints (read-only)
+                        .requestMatchers("/api/departments", "/api/departments/**").permitAll()
+                        .requestMatchers("/api/semesters", "/api/semesters/**").permitAll()
+                        .requestMatchers("/api/subjects", "/api/subjects/**").permitAll()
+                        .requestMatchers("/api/courses", "/api/courses/**").permitAll()
+                        // Assignments API (public read)
+                        .requestMatchers("/api/assignments", "/api/assignments/**").permitAll()
+                        .requestMatchers("/api/submissions", "/api/submissions/**").permitAll()
+                        .requestMatchers("/api/grades", "/api/grades/**").permitAll()
+                        // Health check
+                        .requestMatchers("/api/health", "/api/").permitAll()
+                        // Legacy endpoints
+                        .requestMatchers("api/cours", "api/cours/{id}", "api/cours/soumettre", "api/cours/download/{type}/{id}").permitAll()
                         .requestMatchers(HttpHeaders.ALLOW).permitAll()
                         .anyRequest().authenticated()
                 )

@@ -69,6 +69,30 @@ function UsersListContent() {
             >
               Dashboard
             </Link>
+            <Link
+              href="/admin/users"
+              className="text-sm font-medium text-blue-600 transition"
+            >
+              Users
+            </Link>
+            <Link
+              href="/admin/departments"
+              className="text-sm text-slate-600 hover:text-blue-600 transition"
+            >
+              Departments
+            </Link>
+            <Link
+              href="/admin/semesters"
+              className="text-sm text-slate-600 hover:text-blue-600 transition"
+            >
+              Semesters
+            </Link>
+            <Link
+              href="/admin/subjects"
+              className="text-sm text-slate-600 hover:text-blue-600 transition"
+            >
+              Subjects
+            </Link>
             <span className="hidden text-sm text-slate-700 sm:inline">
               Welcome, {user?.userFirstName}
             </span>

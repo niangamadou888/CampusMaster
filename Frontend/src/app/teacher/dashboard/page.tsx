@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import Link from 'next/link';
 
 function TeacherDashboardContent() {
   const { user, logout, updateUser } = useAuth();
@@ -74,6 +75,24 @@ function TeacherDashboardContent() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <Link
+              href="/teacher/dashboard"
+              className="text-sm font-medium text-purple-600 transition"
+            >
+              Dashboard
+            </Link>
+            <Link
+              href="/teacher/courses"
+              className="text-sm text-slate-600 hover:text-purple-600 transition"
+            >
+              Courses
+            </Link>
+            <Link
+              href="/teacher/assignments"
+              className="text-sm text-slate-600 hover:text-purple-600 transition"
+            >
+              Assignments
+            </Link>
             <span className="hidden text-sm text-slate-700 sm:inline">
               Welcome, {user?.userFirstName}
             </span>
