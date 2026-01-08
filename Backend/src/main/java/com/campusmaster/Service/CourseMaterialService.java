@@ -5,31 +5,26 @@ import com.campusmaster.DAO.CourseMaterialDAO;
 import com.campusmaster.Entity.Course;
 import com.campusmaster.Entity.CourseMaterial;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class CourseMaterialService {
-
-    @Value("${file.upload-dir:uploads}")
-    private String uploadDir;
 
     @Autowired
     private CourseMaterialDAO materialDAO;
 
     @Autowired
     private CourseDAO courseDAO;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     public List<CourseMaterial> getMaterialsByCourse(Long courseId) {
         return materialDAO.findByCourseIdOrderByUploadedAtDesc(courseId);
@@ -49,20 +44,16 @@ public class CourseMaterialService {
             throw new RuntimeException("You are not authorized to upload materials to this course");
         }
 
-        // Create upload directory if it doesn't exist
-        Path uploadPath = Paths.get(uploadDir, "courses", courseId.toString());
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
+        // Upload file to Cloudinary
+        String folder = "courses/" + courseId;
+        Map<String, Object> uploadResult = cloudinaryService.uploadFile(file, folder);
 
-        // Generate unique filename
+        String cloudinaryUrl = (String) uploadResult.get("secure_url");
+        String publicId = (String) uploadResult.get("public_id");
+
+        // Get file info
         String originalFilename = file.getOriginalFilename();
         String extension = getFileExtension(originalFilename);
-        String uniqueFilename = UUID.randomUUID().toString() + "." + extension;
-        Path filePath = uploadPath.resolve(uniqueFilename);
-
-        // Save file
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
         // Create material record
         CourseMaterial material = new CourseMaterial();
@@ -70,7 +61,8 @@ public class CourseMaterialService {
         material.setTitle(title);
         material.setDescription(description);
         material.setFileName(originalFilename);
-        material.setFilePath(filePath.toString());
+        material.setFilePath(cloudinaryUrl);  // Store Cloudinary URL
+        material.setCloudinaryPublicId(publicId);  // Store public ID for deletion
         material.setFileSize(file.getSize());
         material.setFileType(determineFileType(extension));
 
@@ -86,10 +78,10 @@ public class CourseMaterialService {
             throw new RuntimeException("You are not authorized to delete this material");
         }
 
-        // Delete file from filesystem
-        Path filePath = Paths.get(material.getFilePath());
-        if (Files.exists(filePath)) {
-            Files.delete(filePath);
+        // Delete file from Cloudinary
+        String publicId = material.getCloudinaryPublicId();
+        if (publicId != null && !publicId.isEmpty()) {
+            cloudinaryService.deleteFile(publicId);
         }
 
         // Delete database record
@@ -106,19 +98,18 @@ public class CourseMaterialService {
         return total != null ? total : 0L;
     }
 
-    public byte[] downloadMaterial(Long materialId) throws IOException {
+    /**
+     * Get the download URL for a material (Cloudinary URL)
+     */
+    @Transactional
+    public String getDownloadUrl(Long materialId) {
         CourseMaterial material = materialDAO.findById(materialId)
                 .orElseThrow(() -> new RuntimeException("Material not found with id: " + materialId));
-
-        Path filePath = Paths.get(material.getFilePath());
-        if (!Files.exists(filePath)) {
-            throw new RuntimeException("File not found on server");
-        }
 
         // Increment download count
         incrementDownloadCount(materialId);
 
-        return Files.readAllBytes(filePath);
+        return material.getFilePath();  // This is now the Cloudinary URL
     }
 
     private String getFileExtension(String filename) {

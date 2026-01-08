@@ -4,7 +4,6 @@ import com.campusmaster.Entity.Submission;
 import com.campusmaster.Service.SubmissionService;
 import com.campusmaster.Util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -92,21 +91,13 @@ public class SubmissionController {
 
     @GetMapping("/{id}/download")
     @PreAuthorize("hasRole('User') or hasRole('Teacher') or hasRole('Admin')")
-    public ResponseEntity<byte[]> downloadSubmission(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> downloadSubmission(@PathVariable Long id) {
         try {
-            Submission submission = submissionService.getSubmissionById(id)
-                    .orElseThrow(() -> new RuntimeException("Submission not found"));
+            // Get the Cloudinary URL
+            String downloadUrl = submissionService.getDownloadUrl(id);
 
-            byte[] fileContent = submissionService.downloadSubmission(id);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentDispositionFormData("attachment", submission.getFileName());
-            headers.setContentLength(fileContent.length);
-
-            return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            // Return the URL in JSON format
+            return ResponseEntity.ok(Map.of("url", downloadUrl));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

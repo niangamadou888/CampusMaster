@@ -295,13 +295,12 @@ function CourseMaterialsContent() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <a
-                      href={materialApi.getDownloadUrl(courseId, material.id)}
-                      download={material.fileName}
+                    <button
+                      onClick={() => materialApi.download(courseId, material.id, material.fileName)}
                       className="rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 px-3 py-1.5 text-xs font-semibold text-white shadow hover:shadow-lg transition"
                     >
                       Download
-                    </a>
+                    </button>
                     <button
                       onClick={() => handleDelete(material.id)}
                       className="rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100 transition"

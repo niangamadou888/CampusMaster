@@ -261,13 +261,12 @@ function CourseDetailContent() {
                           </p>
                         </div>
                       </div>
-                      <a
-                        href={materialApi.getDownloadUrl(courseId, material.id)}
-                        download={material.fileName}
+                      <button
+                        onClick={() => materialApi.download(courseId, material.id, material.fileName)}
                         className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow hover:shadow-lg transition"
                       >
                         Download
-                      </a>
+                      </button>
                     </div>
                   ))}
                 </div>

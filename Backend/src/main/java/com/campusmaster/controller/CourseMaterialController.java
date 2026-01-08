@@ -64,23 +64,15 @@ public class CourseMaterialController {
     }
 
     @GetMapping("/{materialId}/download")
-    public ResponseEntity<byte[]> downloadMaterial(
+    public ResponseEntity<java.util.Map<String, String>> downloadMaterial(
             @PathVariable Long courseId,
             @PathVariable Long materialId) {
         try {
-            CourseMaterial material = materialService.getMaterialById(materialId)
-                    .orElseThrow(() -> new RuntimeException("Material not found"));
+            // Get the Cloudinary URL and increment download count
+            String downloadUrl = materialService.getDownloadUrl(materialId);
 
-            byte[] fileContent = materialService.downloadMaterial(materialId);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(getMediaType(material.getFileType()));
-            headers.setContentDispositionFormData("attachment", material.getFileName());
-            headers.setContentLength(fileContent.length);
-
-            return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            // Return the URL in JSON format
+            return ResponseEntity.ok(java.util.Map.of("url", downloadUrl));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
@@ -106,21 +98,5 @@ public class CourseMaterialController {
     @GetMapping("/total-downloads")
     public ResponseEntity<Long> getTotalDownloads(@PathVariable Long courseId) {
         return ResponseEntity.ok(materialService.getTotalDownloads(courseId));
-    }
-
-    private MediaType getMediaType(CourseMaterial.FileType fileType) {
-        if (fileType == null) {
-            return MediaType.APPLICATION_OCTET_STREAM;
-        }
-        switch (fileType) {
-            case PDF:
-                return MediaType.APPLICATION_PDF;
-            case VIDEO:
-                return MediaType.valueOf("video/mp4");
-            case IMAGE:
-                return MediaType.IMAGE_PNG;
-            default:
-                return MediaType.APPLICATION_OCTET_STREAM;
-        }
     }
 }

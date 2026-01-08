@@ -7,25 +7,17 @@ import com.campusmaster.Entity.Assignment;
 import com.campusmaster.Entity.Submission;
 import com.campusmaster.Entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class SubmissionService {
-
-    @Value("${file.upload-dir:uploads}")
-    private String uploadDir;
 
     @Autowired
     private SubmissionDAO submissionDAO;
@@ -35,6 +27,9 @@ public class SubmissionService {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     public List<Submission> getSubmissionsByAssignment(Long assignmentId) {
         return submissionDAO.findByAssignmentId(assignmentId);
@@ -76,20 +71,15 @@ public class SubmissionService {
             throw new RuntimeException("Deadline has passed and late submissions are not allowed");
         }
 
-        // Create upload directory
-        Path uploadPath = Paths.get(uploadDir, "submissions", assignmentId.toString(), studentEmail);
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
+        // Upload file to Cloudinary
+        String folder = "submissions/" + assignmentId + "/" + studentEmail.replace("@", "_at_");
+        Map<String, Object> uploadResult = cloudinaryService.uploadFile(file, folder);
 
-        // Generate unique filename
+        String cloudinaryUrl = (String) uploadResult.get("secure_url");
+        String publicId = (String) uploadResult.get("public_id");
+
+        // Get original filename
         String originalFilename = file.getOriginalFilename();
-        String extension = getFileExtension(originalFilename);
-        String uniqueFilename = UUID.randomUUID().toString() + "." + extension;
-        Path filePath = uploadPath.resolve(uniqueFilename);
-
-        // Save file
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
         // Determine version
         Integer maxVersion = submissionDAO.findMaxVersionByAssignmentAndStudent(assignmentId, studentEmail);
@@ -101,7 +91,8 @@ public class SubmissionService {
         submission.setStudent(student);
         submission.setVersion(newVersion);
         submission.setFileName(originalFilename);
-        submission.setFilePath(filePath.toString());
+        submission.setFilePath(cloudinaryUrl);  // Store Cloudinary URL
+        submission.setCloudinaryPublicId(publicId);  // Store public ID for deletion
         submission.setFileSize(file.getSize());
         submission.setComment(comment);
         submission.setIsLate(isLate);
@@ -109,16 +100,14 @@ public class SubmissionService {
         return submissionDAO.save(submission);
     }
 
-    public byte[] downloadSubmission(Long submissionId) throws IOException {
+    /**
+     * Get the download URL for a submission (Cloudinary URL)
+     */
+    public String getDownloadUrl(Long submissionId) {
         Submission submission = submissionDAO.findById(submissionId)
                 .orElseThrow(() -> new RuntimeException("Submission not found with id: " + submissionId));
 
-        Path filePath = Paths.get(submission.getFilePath());
-        if (!Files.exists(filePath)) {
-            throw new RuntimeException("File not found on server");
-        }
-
-        return Files.readAllBytes(filePath);
+        return submission.getFilePath();  // This is now the Cloudinary URL
     }
 
     public List<Submission> getUngradedSubmissions(Long assignmentId) {
@@ -143,12 +132,5 @@ public class SubmissionService {
 
     public boolean hasSubmitted(Long assignmentId, String studentEmail) {
         return submissionDAO.existsByAssignmentIdAndStudentUserEmail(assignmentId, studentEmail);
-    }
-
-    private String getFileExtension(String filename) {
-        if (filename == null || filename.lastIndexOf('.') == -1) {
-            return "";
-        }
-        return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
     }
 }

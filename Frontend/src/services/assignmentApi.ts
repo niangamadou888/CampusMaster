@@ -177,8 +177,16 @@ export const submissionApi = {
     return response.json();
   },
 
-  getDownloadUrl(submissionId: number): string {
-    return `${API_BASE_URL}/api/submissions/${submissionId}/download`;
+  async getDownloadUrl(submissionId: number): Promise<string> {
+    const response = await fetchWithAuth(`/api/submissions/${submissionId}/download`);
+    const data = await response.json();
+    return data.url;
+  },
+
+  async download(submissionId: number, fileName: string): Promise<void> {
+    const url = await this.getDownloadUrl(submissionId);
+    // Open the Cloudinary URL in a new tab for download
+    window.open(url, '_blank');
   },
 };
 

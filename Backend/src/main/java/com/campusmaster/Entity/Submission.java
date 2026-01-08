@@ -29,6 +29,9 @@ public class Submission {
     @Column(name = "file_path")
     private String filePath;
 
+    @Column(name = "cloudinary_public_id")
+    private String cloudinaryPublicId;
+
     @Column(name = "file_size")
     private Long fileSize;
 
@@ -101,6 +104,14 @@ public class Submission {
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
+    }
+
+    public String getCloudinaryPublicId() {
+        return cloudinaryPublicId;
+    }
+
+    public void setCloudinaryPublicId(String cloudinaryPublicId) {
+        this.cloudinaryPublicId = cloudinaryPublicId;
     }
 
     public Long getFileSize() {

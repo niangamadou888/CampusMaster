@@ -297,21 +297,16 @@ export const materialApi = {
     await fetchWithAuth(`/api/courses/${courseId}/materials/${materialId}`, { method: 'DELETE' });
   },
 
-  getDownloadUrl(courseId: number, materialId: number): string {
-    return `${API_BASE_URL}/api/courses/${courseId}/materials/${materialId}/download`;
+  async getDownloadUrl(courseId: number, materialId: number): Promise<string> {
+    const response = await fetchWithAuth(`/api/courses/${courseId}/materials/${materialId}/download`);
+    const data = await response.json();
+    return data.url;
   },
 
   async download(courseId: number, materialId: number, fileName: string): Promise<void> {
-    const response = await fetchWithAuth(`/api/courses/${courseId}/materials/${materialId}/download`);
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    const url = await this.getDownloadUrl(courseId, materialId);
+    // Open the Cloudinary URL in a new tab for download
+    window.open(url, '_blank');
   },
 };
 
