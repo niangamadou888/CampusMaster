@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { usePathname } from 'next/navigation';
 import { assignmentApi, submissionApi } from '@/services/assignmentApi';
 import { Assignment } from '@/types/assignment';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Link from 'next/link';
+import { LayoutDashboard, BookOpen, Calendar, BarChart3, LogOut } from 'lucide-react';
 
 function StudentAssignmentsContent() {
   const { logout } = useAuth();
+  const pathname = usePathname();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -69,116 +72,169 @@ function StudentAssignmentsContent() {
     passed: assignments.filter(a => getDeadlineStatus(a.deadline) === 'passed')
   };
 
-  return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-50">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-x-10 top-10 h-64 bg-gradient-to-r from-orange-200/60 via-amber-200/50 to-yellow-200/50 blur-3xl" />
-      </div>
+  // 🎨 Items de navigation pour la sidebar
+  const navItems = [
+    { href: '/user/dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
+    { href: '/user/courses', label: 'Mes cours', icon: BookOpen },
+    { href: '/user/assignments', label: 'Devoirs', icon: Calendar },
+    { href: '/user/grades', label: 'Notes', icon: BarChart3 },
+  ];
 
-      <nav className="relative z-10 border-b border-white/40 bg-white/70 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
-            <Link href="/user/dashboard" className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-600 to-amber-500 text-white font-semibold shadow">
-              CM
-            </Link>
-            <div>
-              <p className="text-sm font-semibold text-slate-900">CampusMaster</p>
-              <p className="text-xs text-slate-500">My Assignments</p>
-            </div>
+  return (
+    <div className="flex min-h-screen bg-slate-50">
+      {/* 🎨 SIDEBAR À GAUCHE */}
+      <aside className="fixed left-0 top-0 h-screen w-64 border-r border-white/40 bg-white/70 backdrop-blur">
+        {/* Logo CampusMaster */}
+        <div className="flex items-center gap-3 border-b border-white/40 p-6">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-600 to-amber-500 text-white font-semibold shadow">
+            CM
           </div>
-          <div className="flex items-center gap-3">
-            <Link href="/user/dashboard" className="text-sm text-slate-600 hover:text-blue-600 transition">Dashboard</Link>
-            <Link href="/user/courses" className="text-sm text-slate-600 hover:text-blue-600 transition">Courses</Link>
-            <Link href="/user/assignments" className="text-sm font-medium text-blue-600 transition">Assignments</Link>
-            <Link href="/user/grades" className="text-sm text-slate-600 hover:text-blue-600 transition">Grades</Link>
-            <button onClick={logout} className="rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm">
-              Logout
-            </button>
+          <div>
+            <p className="text-sm font-semibold text-slate-900">CampusMaster</p>
+            <p className="text-xs text-slate-500">My Assignments</p>
           </div>
         </div>
-      </nav>
 
-      <main className="relative z-10 mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-2xl backdrop-blur">
-          <div>
-            <h2 className="text-3xl font-black text-slate-900">My Assignments</h2>
-            <p className="text-sm text-slate-600">View and submit your assignments</p>
+        {/* Navigation items avec icônes */}
+        <nav className="flex flex-col gap-1 p-4">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+            
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <Icon className="h-5 w-5" />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Bouton déconnexion en bas - Proposition 1 */}
+        <div className="absolute bottom-6 left-4 right-4">
+          <button
+            onClick={logout}
+            className="group flex w-full items-center gap-3 rounded-lg border border-transparent px-4 py-3 text-sm font-medium text-slate-700 transition-all hover:border-red-200 hover:bg-red-50 hover:font-bold hover:text-red-600"
+          >
+            <LogOut className="h-5 w-5 text-red-600 transition-colors" />
+            <span>Déconnexion</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* 🎨 CONTENU PRINCIPAL - Décalé de 256px */}
+      <div className="relative ml-64 min-h-screen flex-1 overflow-hidden">
+        {/* Gradient de fond (TON DESIGN ORIGINAL !) */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-x-10 top-10 h-64 bg-gradient-to-r from-orange-200/60 via-amber-200/50 to-yellow-200/50 blur-3xl" />
+        </div>
+
+        {/* Barre en haut avec recherche */}
+        <nav className="relative z-10 border-b border-white/40 bg-white/70 backdrop-blur">
+          <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+            <input
+              type="text"
+              placeholder="Rechercher des devoirs..."
+              className="w-96 rounded-lg border border-slate-200/60 bg-white/80 px-4 py-2 text-sm text-slate-900 outline-none transition focus:border-orange-300 focus:ring-2 focus:ring-orange-100"
+            />
           </div>
+        </nav>
 
-          {error && <div className="mt-4 rounded-xl border border-red-100 bg-red-50/80 p-3 text-sm text-red-800">{error}</div>}
+        {/* Contenu de la page */}
+        <main className="relative z-10 mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <div className="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-2xl backdrop-blur">
+            <div>
+              <h2 className="text-3xl font-black text-slate-900">My Assignments</h2>
+              <p className="text-sm text-slate-600">View and submit your assignments</p>
+            </div>
 
-          <div className="mt-8">
-            {loading ? (
-              <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
-              </div>
-            ) : assignments.length === 0 ? (
-              <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-6 text-center">
-                <p className="text-sm text-slate-500">No assignments available. Enroll in courses to see assignments.</p>
-                <Link href="/user/courses" className="mt-2 inline-block text-sm font-semibold text-orange-600">
-                  Browse courses
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-8">
-                {/* Urgent/Upcoming */}
-                {groupedAssignments.upcoming.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-red-600 mb-4">Due Soon</h3>
-                    <div className="space-y-3">
-                      {groupedAssignments.upcoming.map((assignment) => (
-                        <AssignmentCard
-                          key={assignment.id}
-                          assignment={assignment}
-                          submitted={submittedMap[assignment.id]}
-                          formatDeadline={formatDeadline}
-                          getDeadlineStatus={getDeadlineStatus}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Normal */}
-                {groupedAssignments.normal.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-slate-700 mb-4">Upcoming</h3>
-                    <div className="space-y-3">
-                      {groupedAssignments.normal.map((assignment) => (
-                        <AssignmentCard
-                          key={assignment.id}
-                          assignment={assignment}
-                          submitted={submittedMap[assignment.id]}
-                          formatDeadline={formatDeadline}
-                          getDeadlineStatus={getDeadlineStatus}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Passed */}
-                {groupedAssignments.passed.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-slate-400 mb-4">Past Due</h3>
-                    <div className="space-y-3">
-                      {groupedAssignments.passed.map((assignment) => (
-                        <AssignmentCard
-                          key={assignment.id}
-                          assignment={assignment}
-                          submitted={submittedMap[assignment.id]}
-                          formatDeadline={formatDeadline}
-                          getDeadlineStatus={getDeadlineStatus}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
+            {error && (
+              <div className="mt-4 rounded-xl border border-red-100 bg-red-50/80 p-3 text-sm text-red-800">
+                {error}
               </div>
             )}
+
+            <div className="mt-8">
+              {loading ? (
+                <div className="flex justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+                </div>
+              ) : assignments.length === 0 ? (
+                <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-6 text-center">
+                  <p className="text-sm text-slate-500">No assignments available. Enroll in courses to see assignments.</p>
+                  <Link href="/user/courses" className="mt-2 inline-block text-sm font-semibold text-orange-600">
+                    Browse courses
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  {/* Urgent/Upcoming */}
+                  {groupedAssignments.upcoming.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-red-600 mb-4">Due Soon</h3>
+                      <div className="space-y-3">
+                        {groupedAssignments.upcoming.map((assignment) => (
+                          <AssignmentCard
+                            key={assignment.id}
+                            assignment={assignment}
+                            submitted={submittedMap[assignment.id]}
+                            formatDeadline={formatDeadline}
+                            getDeadlineStatus={getDeadlineStatus}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Normal */}
+                  {groupedAssignments.normal.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-700 mb-4">Upcoming</h3>
+                      <div className="space-y-3">
+                        {groupedAssignments.normal.map((assignment) => (
+                          <AssignmentCard
+                            key={assignment.id}
+                            assignment={assignment}
+                            submitted={submittedMap[assignment.id]}
+                            formatDeadline={formatDeadline}
+                            getDeadlineStatus={getDeadlineStatus}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Passed */}
+                  {groupedAssignments.passed.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-400 mb-4">Past Due</h3>
+                      <div className="space-y-3">
+                        {groupedAssignments.passed.map((assignment) => (
+                          <AssignmentCard
+                            key={assignment.id}
+                            assignment={assignment}
+                            submitted={submittedMap[assignment.id]}
+                            formatDeadline={formatDeadline}
+                            getDeadlineStatus={getDeadlineStatus}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
