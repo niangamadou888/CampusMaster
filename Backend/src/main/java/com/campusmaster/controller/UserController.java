@@ -27,8 +27,8 @@ public class UserController {
     }
 
     @PostMapping({"/registerNewUser"})
-    public User registerNewUser(@RequestBody User user){
-        return userService.registerNewUser(user);
+    public User registerNewUser(@RequestBody User user, @RequestParam(required = false) String role){
+        return userService.registerNewUser(user, role);
     }
 
     @GetMapping({"forAdmin"})
@@ -43,6 +43,12 @@ public class UserController {
         return "This URL is only accessible to the user";
     }
 
+    @GetMapping({"forTeacher"})
+    @PreAuthorize("hasRole('Teacher')")
+    public String forTeacher(){
+        return "This URL is only accessible to the teacher";
+    }
+
     @PutMapping("/{id}/suspend")
     @PreAuthorize("hasRole('Admin')")
     public void suspendUser(@PathVariable String id) {
@@ -50,7 +56,7 @@ public class UserController {
     }
 
     @GetMapping("/getUserInfo")
-    @PreAuthorize("hasRole('User')")
+    @PreAuthorize("hasRole('User') or hasRole('Teacher') or hasRole('Admin')")
     public ResponseEntity<User> getUserInfo(@RequestHeader("Authorization") String token) {
         // Remove the "Bearer " prefix from the Authorization header
         if (token.startsWith("Bearer ")) {
@@ -66,7 +72,7 @@ public class UserController {
     }
 
     @PutMapping("/updateUserInfo")
-    @PreAuthorize("hasRole('User')")
+    @PreAuthorize("hasRole('User') or hasRole('Teacher') or hasRole('Admin')")
     public User updateUserInfo(@RequestBody User updatedUser, @RequestHeader("Authorization") String token) {
         String userEmail = extractUserEmailFromToken(token); // Extract user email from token
         return userService.updateUserInfo(updatedUser, userEmail);
@@ -80,5 +86,23 @@ public class UserController {
     @PreAuthorize("hasRole('Admin')")
     public void unsuspendUser(@PathVariable String id) {
         userService.unsuspendUser(id);
+    }
+
+    @GetMapping("/pending-teachers")
+    @PreAuthorize("hasRole('Admin')")
+    public java.util.List<User> getPendingTeachers() {
+        return userService.getPendingTeachers();
+    }
+
+    @GetMapping("/approved-teachers")
+    @PreAuthorize("hasRole('Admin')")
+    public java.util.List<User> getApprovedTeachers() {
+        return userService.getApprovedTeachers();
+    }
+
+    @GetMapping("/all-users")
+    @PreAuthorize("hasRole('Admin')")
+    public java.util.List<User> getAllUsers() {
+        return userService.getAllUsers();
     }
 }

@@ -44,9 +44,26 @@ public class WebSecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable()) // Désactiver CSRF
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/authenticate","api/cours", "api/cours/{id}", "api/cours/soumettre", "api/cours/download/{type}/{id}", "/updateUserInfo", "/getUserInfo", "/forgot-password", "/reset-password", "/registerNewUser").permitAll()
+                        // Public authentication endpoints
+                        .requestMatchers("/authenticate", "/registerNewUser", "/forgot-password", "/reset-password").permitAll()
+                        // Public user endpoints
+                        .requestMatchers("/updateUserInfo", "/getUserInfo", "/pending-teachers", "/approved-teachers", "/all-users").permitAll()
+                        // Public API endpoints (read-only)
+                        .requestMatchers("/api/departments", "/api/departments/**").permitAll()
+                        .requestMatchers("/api/semesters", "/api/semesters/**").permitAll()
+                        .requestMatchers("/api/subjects", "/api/subjects/**").permitAll()
+                        .requestMatchers("/api/courses", "/api/courses/**").permitAll()
+                        // Assignments API (public read)
+                        .requestMatchers("/api/assignments", "/api/assignments/**").permitAll()
+                        .requestMatchers("/api/submissions", "/api/submissions/**").permitAll()
+                        .requestMatchers("/api/grades", "/api/grades/**").permitAll()
+                        // Health check
+                        .requestMatchers("/api/health", "/api/").permitAll()
+                        // Legacy endpoints
+                        .requestMatchers("api/cours", "api/cours/{id}", "api/cours/soumettre", "api/cours/download/{type}/{id}").permitAll()
                         .requestMatchers(HttpHeaders.ALLOW).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -71,7 +88,11 @@ public class WebSecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200")); // Changez l'origine pour correspondre à votre frontend
+        configuration.setAllowedOrigins(List.of(
+            "http://localhost:3000",
+            "http://localhost:4200",
+            "https://campus-master.vercel.app"
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of(HttpHeaders.AUTHORIZATION));

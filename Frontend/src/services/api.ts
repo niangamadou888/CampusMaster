@@ -7,7 +7,7 @@ import {
 } from '@/types/auth';
 import { storage } from '@/utils/storage';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4500';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://campusmaster.onrender.com';
 
 class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -21,10 +21,16 @@ async function fetchWithAuth(
   options: RequestInit = {}
 ): Promise<Response> {
   const token = storage.getToken();
+  const isFormData = options.body instanceof FormData;
+
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   };
+
+  // Don't set Content-Type for FormData - browser will set it with boundary
+  if (!isFormData) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -43,6 +49,36 @@ async function fetchWithAuth(
   return response;
 }
 
+// 🆕 Fonction helper pour parser les réponses JSON ou vides
+async function parseResponse<T>(response: Response): Promise<T | void> {
+  const contentType = response.headers.get('content-type');
+  const hasContent = response.status !== 204 && response.status !== 205;
+  
+  if (!hasContent) {
+    return; // Pas de contenu à parser (204 No Content)
+  }
+  
+  // Vérifier s'il y a du contenu
+  const text = await response.text();
+  
+  if (!text || text.trim() === '') {
+    return; // Réponse vide
+  }
+  
+  // Si c'est du JSON, parser
+  if (contentType?.includes('application/json')) {
+    try {
+      return JSON.parse(text) as T;
+    } catch (err) {
+      console.error('Failed to parse JSON:', text);
+      throw new Error('Invalid JSON response');
+    }
+  }
+  
+  // Sinon, retourner le texte tel quel (cast vers T)
+  return text as unknown as T;
+}
+
 export const authApi = {
   async login(data: LoginRequest): Promise<LoginResponse> {
     const response = await fetchWithAuth('/authenticate', {
@@ -53,9 +89,11 @@ export const authApi = {
   },
 
   async register(data: RegisterRequest): Promise<User> {
-    const response = await fetchWithAuth('/registerNewUser', {
+    const { role, ...userData } = data;
+    const url = role ? `/registerNewUser?role=${encodeURIComponent(role)}` : '/registerNewUser';
+    const response = await fetchWithAuth(url, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(userData),
     });
     return response.json();
   },
@@ -94,16 +132,39 @@ export const authApi = {
     return response.json();
   },
 
-  async suspendUser(userEmail: string): Promise<User> {
+  // 🆕 CORRIGÉ : Gestion des réponses vides
+  async suspendUser(userEmail: string): Promise<User | void> {
     const response = await fetchWithAuth(`/${encodeURIComponent(userEmail)}/suspend`, {
       method: 'PUT',
+    });
+    return parseResponse<User>(response);
+  },
+
+  // 🆕 CORRIGÉ : Gestion des réponses vides
+  async unsuspendUser(userEmail: string): Promise<User | void> {
+    const response = await fetchWithAuth(`/${encodeURIComponent(userEmail)}/unsuspend`, {
+      method: 'PUT',
+    });
+    return parseResponse<User>(response);
+  },
+
+  async getPendingTeachers(): Promise<User[]> {
+    const response = await fetchWithAuth('/pending-teachers', {
+      method: 'GET',
     });
     return response.json();
   },
 
-  async unsuspendUser(userEmail: string): Promise<User> {
-    const response = await fetchWithAuth(`/${encodeURIComponent(userEmail)}/unsuspend`, {
-      method: 'PUT',
+  async getApprovedTeachers(): Promise<User[]> {
+    const response = await fetchWithAuth('/approved-teachers', {
+      method: 'GET',
+    });
+    return response.json();
+  },
+
+  async getAllUsers(): Promise<User[]> {
+    const response = await fetchWithAuth('/all-users', {
+      method: 'GET',
     });
     return response.json();
   },
