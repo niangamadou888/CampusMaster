@@ -9,13 +9,16 @@ import { Course } from '@/types/course';
 import { ForumPost, ForumReply } from '@/types/forum';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, Calendar, BarChart3, LogOut, MessageSquare, Pin, Lock, Send, ChevronDown, ChevronUp } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Calendar, BarChart3, LogOut, MessageSquare, Bell, Pin, Lock, Send, ChevronDown, ChevronUp } from 'lucide-react';
+import NotificationBell from '@/components/NotificationBell';
+import { useNotifications } from '@/context/NotificationContext';
 
 function ForumContent() {
   const params = useParams();
   const pathname = usePathname();
   const courseId = Number(params.id);
   const { user, logout } = useAuth();
+  const { unreadCount } = useNotifications();
 
   const [course, setCourse] = useState<Course | null>(null);
   const [posts, setPosts] = useState<ForumPost[]>([]);
@@ -135,6 +138,7 @@ function ForumContent() {
     { href: '/user/assignments', label: 'Devoirs', icon: Calendar },
     { href: '/user/grades', label: 'Notes', icon: BarChart3 },
     { href: '/user/messages', label: 'Messages', icon: MessageSquare },
+    { href: '/user/notifications', label: 'Notifications', icon: Bell },
   ];
 
   if (loading) {
@@ -187,6 +191,11 @@ function ForumContent() {
               >
                 <Icon className="h-5 w-5" />
                 <span>{item.label}</span>
+                {item.href === '/user/notifications' && unreadCount > 0 && (
+                  <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -215,6 +224,12 @@ function ForumContent() {
               <Link href={`/user/courses/${courseId}`} className="text-sm text-slate-600 hover:text-indigo-600 transition">
                 ← Back to Course
               </Link>
+            </div>
+            <div className="flex items-center gap-3">
+              <NotificationBell notificationsHref="/user/notifications" />
+              <span className="hidden text-sm text-slate-700 sm:inline">
+                Welcome, {user?.userFirstName}
+              </span>
             </div>
           </div>
         </nav>

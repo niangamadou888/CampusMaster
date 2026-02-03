@@ -9,13 +9,16 @@ import { Course, CourseMaterial } from '@/types/course';
 import { Assignment } from '@/types/assignment';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, Calendar, BarChart3, LogOut, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Calendar, BarChart3, LogOut, MessageSquare, Bell } from 'lucide-react';
+import NotificationBell from '@/components/NotificationBell';
+import { useNotifications } from '@/context/NotificationContext';
 
 function CourseDetailContent() {
   const params = useParams();
   const pathname = usePathname();
   const courseId = Number(params.id);
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const { unreadCount } = useNotifications();
 
   const [course, setCourse] = useState<Course | null>(null);
   const [materials, setMaterials] = useState<CourseMaterial[]>([]);
@@ -77,6 +80,7 @@ function CourseDetailContent() {
     { href: '/user/assignments', label: 'Devoirs', icon: Calendar },
     { href: '/user/grades', label: 'Notes', icon: BarChart3 },
     { href: '/user/messages', label: 'Messages', icon: MessageSquare },
+    { href: '/user/notifications', label: 'Notifications', icon: Bell },
   ];
 
   if (loading) {
@@ -166,6 +170,11 @@ function CourseDetailContent() {
               >
                 <Icon className="h-5 w-5" />
                 <span>{item.label}</span>
+                {item.href === '/user/notifications' && unreadCount > 0 && (
+                  <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -198,6 +207,12 @@ function CourseDetailContent() {
               placeholder="Rechercher dans le cours..."
               className="w-96 rounded-lg border border-slate-200/60 bg-white/80 px-4 py-2 text-sm text-slate-900 outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100"
             />
+            <div className="flex items-center gap-3">
+              <NotificationBell notificationsHref="/user/notifications" />
+              <span className="hidden text-sm text-slate-700 sm:inline">
+                Welcome, {user?.userFirstName}
+              </span>
+            </div>
           </div>
         </nav>
 

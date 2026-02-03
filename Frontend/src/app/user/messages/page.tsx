@@ -15,16 +15,20 @@ import {
   BarChart3,
   LogOut,
   MessageSquare,
+  Bell,
   Send,
   Plus,
   Search,
   X,
   ArrowLeft,
 } from 'lucide-react';
+import NotificationBell from '@/components/NotificationBell';
+import { useNotifications } from '@/context/NotificationContext';
 
 function MessagesContent() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
+  const { unreadCount } = useNotifications();
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
@@ -46,6 +50,7 @@ function MessagesContent() {
     { href: '/user/assignments', label: 'Devoirs', icon: ClipboardList },
     { href: '/user/grades', label: 'Notes', icon: BarChart3 },
     { href: '/user/messages', label: 'Messages', icon: MessageSquare },
+    { href: '/user/notifications', label: 'Notifications', icon: Bell },
   ];
 
   useEffect(() => {
@@ -243,6 +248,11 @@ function MessagesContent() {
               >
                 <Icon className="h-5 w-5" />
                 <span>{item.label}</span>
+                {item.href === '/user/notifications' && unreadCount > 0 && (
+                  <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}

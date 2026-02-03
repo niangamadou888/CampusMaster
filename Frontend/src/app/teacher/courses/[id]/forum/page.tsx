@@ -9,7 +9,9 @@ import { Course } from '@/types/course';
 import { ForumPost, ForumReply } from '@/types/forum';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, ClipboardList, LogOut, MessageSquare, Pin, Lock, Unlock, Send, ChevronDown, ChevronUp, Trash2, Search } from 'lucide-react';
+import { LayoutDashboard, BookOpen, ClipboardList, LogOut, MessageSquare, Pin, Lock, Unlock, Send, ChevronDown, ChevronUp, Trash2, Search, GraduationCap, Bell } from 'lucide-react';
+import NotificationBell from '@/components/NotificationBell';
+import { useNotifications } from '@/context/NotificationContext';
 
 function TeacherForumContent() {
   const params = useParams();
@@ -190,11 +192,15 @@ function TeacherForumContent() {
     return date.toLocaleDateString();
   };
 
+  const { unreadCount } = useNotifications();
+
   const navItems = [
     { href: '/teacher/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/teacher/courses', label: 'Courses', icon: BookOpen },
     { href: '/teacher/assignments', label: 'Assignments', icon: ClipboardList },
+    { href: '/teacher/grades', label: 'Grades', icon: GraduationCap },
     { href: '/teacher/messages', label: 'Messages', icon: MessageSquare },
+    { href: '/teacher/notifications', label: 'Notifications', icon: Bell },
   ];
 
   if (loading && !posts.length) {
@@ -247,6 +253,11 @@ function TeacherForumContent() {
               >
                 <Icon className="h-5 w-5" />
                 <span>{item.label}</span>
+                {item.href === '/teacher/notifications' && unreadCount > 0 && (
+                  <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}

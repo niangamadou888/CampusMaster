@@ -5,11 +5,14 @@ import { useAuth } from '@/context/AuthContext';
 import { usePathname } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, ClipboardList, BarChart3, MessageSquare, LogOut } from 'lucide-react';
+import { LayoutDashboard, BookOpen, ClipboardList, BarChart3, MessageSquare, Bell, LogOut } from 'lucide-react';
+import NotificationBell from '@/components/NotificationBell';
+import { useNotifications } from '@/context/NotificationContext';
 
 function UserDashboardContent() {
   const { user, logout, updateUser } = useAuth();
   const pathname = usePathname();
+  const { unreadCount } = useNotifications();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     firstName: user?.userFirstName || '',
@@ -66,6 +69,7 @@ function UserDashboardContent() {
     { href: '/user/assignments', label: 'Devoirs', icon: ClipboardList },
     { href: '/user/grades', label: 'Notes', icon: BarChart3 },
     { href: '/user/messages', label: 'Messages', icon: MessageSquare },
+    { href: '/user/notifications', label: 'Notifications', icon: Bell },
   ];
 
   return (
@@ -101,6 +105,11 @@ function UserDashboardContent() {
               >
                 <Icon className="h-5 w-5" />
                 <span>{item.label}</span>
+                {item.href === '/user/notifications' && unreadCount > 0 && (
+                  <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -135,6 +144,7 @@ function UserDashboardContent() {
               className="w-96 rounded-lg border border-slate-200/60 bg-white/80 px-4 py-2 text-sm text-slate-900 outline-none transition focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
             />
             <div className="flex items-center gap-3">
+              <NotificationBell notificationsHref="/user/notifications" />
               <span className="hidden text-sm text-slate-700 sm:inline">
                 Welcome, {user?.userFirstName}
               </span>
