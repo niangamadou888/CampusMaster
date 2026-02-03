@@ -9,7 +9,7 @@ import { Course, CourseMaterial } from '@/types/course';
 import { Assignment } from '@/types/assignment';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, Calendar, BarChart3, LogOut } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Calendar, BarChart3, LogOut, MessageSquare } from 'lucide-react';
 
 function CourseDetailContent() {
   const params = useParams();
@@ -276,6 +276,13 @@ function CourseDetailContent() {
             >
               Assignments ({assignments.length})
             </button>
+            <Link
+              href={`/user/courses/${courseId}/forum`}
+              className="rounded-full px-4 py-2 text-sm font-semibold bg-white/80 text-slate-700 hover:bg-indigo-600 hover:text-white transition flex items-center gap-2"
+            >
+              <MessageSquare className="h-4 w-4" />
+              Forum
+            </Link>
           </div>
 
           {/* Tab Content */}

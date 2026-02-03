@@ -1,6 +1,6 @@
 package com.campusmaster.Entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -44,7 +44,7 @@ public class Submission {
     @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
 
-    @JsonIgnore
+    @JsonManagedReference
     @OneToOne(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)
     private Grade grade;
 

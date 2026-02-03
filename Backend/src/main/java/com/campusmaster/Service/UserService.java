@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -21,6 +22,9 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private NotificationService notificationService;
 
     public User registerNewUser(User user, String roleName) {
         // Default to "User" role if not specified
@@ -40,7 +44,14 @@ public class UserService {
         }
 
         user.setUserPassword(getEncodedPassword(user.getUserPassword()));
-        return userDao.save(user);
+        User savedUser = userDao.save(user);
+
+        // Notify admins when a new teacher registers
+        if ("Teacher".equals(finalRoleName)) {
+            notificationService.notifyAdminsOfPendingTeacher(savedUser);
+        }
+
+        return savedUser;
     }
 
     public void initRolesAndUser(){
@@ -164,8 +175,22 @@ public class UserService {
         Optional<User> userOptional = userDao.findById(id);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
+            boolean isTeacher = user.getRole().stream().anyMatch(r -> "Teacher".equals(r.getRoleName()));
+            boolean wasTeacherPending = user.getIsSuspended() && isTeacher && user.getApprovedAt() == null;
+
             user.setIsSuspended(false);
+
+            // Set approvedAt only on first approval (when it was null)
+            if (isTeacher && user.getApprovedAt() == null) {
+                user.setApprovedAt(LocalDateTime.now());
+            }
+
             userDao.save(user);
+
+            // Notify teacher when their account is approved for the first time
+            if (wasTeacherPending) {
+                notificationService.notifyTeacherApproved(user);
+            }
         }
     }
 
@@ -181,10 +206,41 @@ public class UserService {
         return userDao.findApprovedTeachers();
     }
 
+    public java.util.List<User> getSuspendedTeachers() {
+        return userDao.findSuspendedTeachers();
+    }
+
     public java.util.List<User> getAllUsers() {
         java.util.List<User> users = new java.util.ArrayList<>();
         userDao.findAll().forEach(users::add);
         return users;
+    }
+
+    /**
+     * Reject a pending teacher by deleting their account.
+     * Can only reject teachers that have never been approved (approvedAt is null).
+     */
+    public void rejectPendingTeacher(String teacherEmail) {
+        Optional<User> userOptional = userDao.findById(teacherEmail);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            // Verify it's a teacher
+            boolean isTeacher = user.getRole().stream().anyMatch(r -> "Teacher".equals(r.getRoleName()));
+            if (!isTeacher) {
+                throw new RuntimeException("User is not a teacher");
+            }
+
+            // Can only reject pending teachers (never approved)
+            if (user.getApprovedAt() != null) {
+                throw new RuntimeException("Cannot reject an already approved teacher. Use suspend instead.");
+            }
+
+            // Delete the user
+            userDao.delete(user);
+        } else {
+            throw new RuntimeException("User not found with email: " + teacherEmail);
+        }
     }
 
 }

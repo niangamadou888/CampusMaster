@@ -9,7 +9,7 @@ import { Course, CourseMaterial } from '@/types/course';
 import { Assignment } from '@/types/assignment';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, ClipboardList, LogOut } from 'lucide-react';
+import { LayoutDashboard, BookOpen, ClipboardList, LogOut, MessageSquare } from 'lucide-react';
 
 function TeacherCourseDetailContent() {
   const params = useParams();
@@ -245,6 +245,13 @@ function TeacherCourseDetailContent() {
                     className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-2 text-sm font-semibold text-white shadow hover:shadow-lg transition"
                   >
                     Manage Assignments
+                  </Link>
+                  <Link
+                    href={`/teacher/courses/${courseId}/forum`}
+                    className="rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-2 text-sm font-semibold text-white shadow hover:shadow-lg transition flex items-center gap-2"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    Forum
                   </Link>
                   {course.isPublished ? (
                     <button

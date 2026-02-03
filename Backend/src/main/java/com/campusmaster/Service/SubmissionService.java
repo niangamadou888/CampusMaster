@@ -31,6 +31,9 @@ public class SubmissionService {
     @Autowired
     private CloudinaryService cloudinaryService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public List<Submission> getSubmissionsByAssignment(Long assignmentId) {
         return submissionDAO.findByAssignmentId(assignmentId);
     }
@@ -97,7 +100,12 @@ public class SubmissionService {
         submission.setComment(comment);
         submission.setIsLate(isLate);
 
-        return submissionDAO.save(submission);
+        Submission savedSubmission = submissionDAO.save(submission);
+
+        // Notify teacher of new submission
+        notificationService.notifyTeacherOfSubmission(savedSubmission);
+
+        return savedSubmission;
     }
 
     /**
