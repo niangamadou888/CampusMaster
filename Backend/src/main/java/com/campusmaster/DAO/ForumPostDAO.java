@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface ForumPostDAO extends JpaRepository<ForumPost, Long> {
 
-    @Query("SELECT p FROM ForumPost p WHERE p.course.id = :courseId ORDER BY p.isPinned DESC, p.createdAt DESC")
+    @Query("SELECT DISTINCT p FROM ForumPost p LEFT JOIN FETCH p.replies WHERE p.course.id = :courseId ORDER BY p.isPinned DESC, p.createdAt DESC")
     List<ForumPost> findByCourseId(@Param("courseId") Long courseId);
 
     @Query("SELECT p FROM ForumPost p WHERE p.author.userEmail = :email ORDER BY p.createdAt DESC")
@@ -23,6 +23,6 @@ public interface ForumPostDAO extends JpaRepository<ForumPost, Long> {
     @Query("SELECT COUNT(p) FROM ForumPost p WHERE p.course.id = :courseId")
     Long countByCourseId(@Param("courseId") Long courseId);
 
-    @Query("SELECT p FROM ForumPost p WHERE p.course.id = :courseId AND (LOWER(p.title) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(p.content) LIKE LOWER(CONCAT('%', :search, '%'))) ORDER BY p.isPinned DESC, p.createdAt DESC")
+    @Query("SELECT DISTINCT p FROM ForumPost p LEFT JOIN FETCH p.replies WHERE p.course.id = :courseId AND (LOWER(p.title) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(p.content) LIKE LOWER(CONCAT('%', :search, '%'))) ORDER BY p.isPinned DESC, p.createdAt DESC")
     List<ForumPost> searchInCourse(@Param("courseId") Long courseId, @Param("search") String search);
 }
