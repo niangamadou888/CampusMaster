@@ -279,7 +279,7 @@ function SubmissionsContent() {
 
                           {/* Commentaire de l'étudiant */}
                           {submission.comment && (
-                            <p className="mt-2 text-sm text-slate-700 italic">"{submission.comment}"</p>
+                            <p className="mt-2 text-sm text-slate-700 italic">&quot;{submission.comment}&quot;</p>
                           )}
 
                           {/* 🆕 Affichage du feedback */}
