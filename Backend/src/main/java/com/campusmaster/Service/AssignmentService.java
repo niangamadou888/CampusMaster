@@ -25,6 +25,9 @@ public class AssignmentService {
     @Autowired
     private UserDAO userDAO;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public List<Assignment> getAllAssignments() {
         return assignmentDAO.findAll();
     }
@@ -104,7 +107,14 @@ public class AssignmentService {
             assignment.setLateSubmissionPenalty(updatedAssignment.getLateSubmissionPenalty());
         }
 
-        return assignmentDAO.save(assignment);
+        Assignment savedAssignment = assignmentDAO.save(assignment);
+
+        // Notify students if the assignment is published
+        if (Boolean.TRUE.equals(savedAssignment.getIsPublished())) {
+            notificationService.notifyStudentsOfAssignmentUpdate(savedAssignment);
+        }
+
+        return savedAssignment;
     }
 
     public Assignment publishAssignment(Long id, String teacherEmail) {
@@ -116,7 +126,12 @@ public class AssignmentService {
         }
 
         assignment.setIsPublished(true);
-        return assignmentDAO.save(assignment);
+        Assignment savedAssignment = assignmentDAO.save(assignment);
+
+        // Notify students enrolled in the course
+        notificationService.notifyStudentsOfNewAssignment(savedAssignment);
+
+        return savedAssignment;
     }
 
     public Assignment unpublishAssignment(Long id, String teacherEmail) {

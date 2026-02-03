@@ -24,6 +24,9 @@ public class GradeService {
     @Autowired
     private UserDAO userDAO;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public Optional<Grade> getGradeById(Long id) {
         return gradeDAO.findById(id);
     }
@@ -82,7 +85,12 @@ public class GradeService {
         grade.setFeedback(feedback);
         grade.setGradedBy(teacher);
 
-        return gradeDAO.save(grade);
+        Grade savedGrade = gradeDAO.save(grade);
+
+        // Notify student of the new grade
+        notificationService.notifyStudentOfGrade(savedGrade);
+
+        return savedGrade;
     }
 
     public Grade updateGrade(Long gradeId, Double score, String feedback, String teacherEmail) {
@@ -105,7 +113,12 @@ public class GradeService {
             grade.setFeedback(feedback);
         }
 
-        return gradeDAO.save(grade);
+        Grade savedGrade = gradeDAO.save(grade);
+
+        // Notify student of the grade update
+        notificationService.notifyStudentOfGradeUpdate(savedGrade);
+
+        return savedGrade;
     }
 
     public void deleteGrade(Long gradeId, String teacherEmail) {

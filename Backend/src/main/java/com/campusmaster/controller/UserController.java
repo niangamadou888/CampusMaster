@@ -100,6 +100,23 @@ public class UserController {
         return userService.getApprovedTeachers();
     }
 
+    @GetMapping("/suspended-teachers")
+    @PreAuthorize("hasRole('Admin')")
+    public java.util.List<User> getSuspendedTeachers() {
+        return userService.getSuspendedTeachers();
+    }
+
+    @DeleteMapping("/{id}/reject")
+    @PreAuthorize("hasRole('Admin')")
+    public ResponseEntity<Void> rejectPendingTeacher(@PathVariable String id) {
+        try {
+            userService.rejectPendingTeacher(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @GetMapping("/all-users")
     @PreAuthorize("hasRole('Admin')")
     public java.util.List<User> getAllUsers() {

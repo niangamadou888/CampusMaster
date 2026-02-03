@@ -7,7 +7,7 @@ import { assignmentApi, submissionApi, gradeApi } from '@/services/assignmentApi
 import { Assignment, Submission, Grade } from '@/types/assignment';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, Calendar, BarChart3, LogOut, Upload, X, FileText, Download } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Calendar, BarChart3, MessageSquare, LogOut, Upload, X, FileText, Download } from 'lucide-react';
 
 function AssignmentDetailContent() {
   const params = useParams();
@@ -171,6 +171,7 @@ function AssignmentDetailContent() {
     { href: '/user/courses', label: 'Mes cours', icon: BookOpen },
     { href: '/user/assignments', label: 'Devoirs', icon: Calendar },
     { href: '/user/grades', label: 'Notes', icon: BarChart3 },
+    { href: '/user/messages', label: 'Messages', icon: MessageSquare },
   ];
 
   if (loading) {

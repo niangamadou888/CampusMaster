@@ -7,7 +7,7 @@ import { courseApi, subjectApi } from '@/services/courseApi';
 import { Course, Subject } from '@/types/course';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, ClipboardList, LogOut } from 'lucide-react';
+import { LayoutDashboard, BookOpen, ClipboardList, MessageSquare, LogOut } from 'lucide-react';
 
 function TeacherCoursesContent() {
   const { user, logout } = useAuth();
@@ -102,6 +102,7 @@ function TeacherCoursesContent() {
     { href: '/teacher/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/teacher/courses', label: 'Courses', icon: BookOpen },
     { href: '/teacher/assignments', label: 'Assignments', icon: ClipboardList },
+    { href: '/teacher/messages', label: 'Messages', icon: MessageSquare },
   ];
 
   return (
