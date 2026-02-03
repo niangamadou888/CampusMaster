@@ -7,7 +7,7 @@ import { gradeApi } from '@/services/assignmentApi';
 import { Grade } from '@/types/assignment';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, Calendar, BarChart3, LogOut } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Calendar, BarChart3, MessageSquare, LogOut } from 'lucide-react';
 
 function StudentGradesContent() {
   const { logout } = useAuth();
@@ -61,6 +61,7 @@ function StudentGradesContent() {
     { href: '/user/courses', label: 'Mes cours', icon: BookOpen },
     { href: '/user/assignments', label: 'Devoirs', icon: Calendar },
     { href: '/user/grades', label: 'Notes', icon: BarChart3 },
+    { href: '/user/messages', label: 'Messages', icon: MessageSquare },
   ];
 
   return (

@@ -76,6 +76,7 @@ function CourseDetailContent() {
     { href: '/user/courses', label: 'Mes cours', icon: BookOpen },
     { href: '/user/assignments', label: 'Devoirs', icon: Calendar },
     { href: '/user/grades', label: 'Notes', icon: BarChart3 },
+    { href: '/user/messages', label: 'Messages', icon: MessageSquare },
   ];
 
   if (loading) {

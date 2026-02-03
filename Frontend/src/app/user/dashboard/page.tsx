@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { usePathname } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, ClipboardList, BarChart3, LogOut } from 'lucide-react';
+import { LayoutDashboard, BookOpen, ClipboardList, BarChart3, MessageSquare, LogOut } from 'lucide-react';
 
 function UserDashboardContent() {
   const { user, logout, updateUser } = useAuth();
@@ -65,6 +65,7 @@ function UserDashboardContent() {
     { href: '/user/courses', label: 'Cours', icon: BookOpen },
     { href: '/user/assignments', label: 'Devoirs', icon: ClipboardList },
     { href: '/user/grades', label: 'Notes', icon: BarChart3 },
+    { href: '/user/messages', label: 'Messages', icon: MessageSquare },
   ];
 
   return (

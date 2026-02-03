@@ -7,7 +7,7 @@ import { assignmentApi, submissionApi, gradeApi } from '@/services/assignmentApi
 import { Assignment, Submission } from '@/types/assignment';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, ClipboardList, LogOut, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, BookOpen, ClipboardList, MessageSquare, LogOut, ArrowLeft } from 'lucide-react';
 
 function SubmissionsContent() {
   const { logout } = useAuth();
@@ -86,6 +86,7 @@ function SubmissionsContent() {
     { href: '/teacher/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/teacher/courses', label: 'Courses', icon: BookOpen },
     { href: '/teacher/assignments', label: 'Assignments', icon: ClipboardList },
+    { href: '/teacher/messages', label: 'Messages', icon: MessageSquare },
   ];
 
   return (

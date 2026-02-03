@@ -7,7 +7,7 @@ import { courseApi } from '@/services/courseApi';
 import { Course, CourseEnrollment } from '@/types/course';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, Calendar, BarChart3, LogOut } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Calendar, BarChart3, MessageSquare, LogOut } from 'lucide-react';
 
 function StudentCoursesContent() {
   const { logout } = useAuth();
@@ -71,6 +71,7 @@ function StudentCoursesContent() {
     { href: '/user/courses', label: 'Mes cours', icon: BookOpen },
     { href: '/user/assignments', label: 'Devoirs', icon: Calendar },
     { href: '/user/grades', label: 'Notes', icon: BarChart3 },
+    { href: '/user/messages', label: 'Messages', icon: MessageSquare },
   ];
 
   return (

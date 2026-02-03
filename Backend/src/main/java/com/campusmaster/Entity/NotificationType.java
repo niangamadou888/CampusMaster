@@ -22,6 +22,9 @@ public enum NotificationType {
     TEACHER_APPROVED("Teacher Account Approved"),
     TEACHER_REGISTRATION_PENDING("New Teacher Registration Pending"),
 
+    // Message notifications
+    NEW_MESSAGE("New Private Message"),
+
     // General notifications
     ANNOUNCEMENT("Announcement"),
     SYSTEM("System Notification");

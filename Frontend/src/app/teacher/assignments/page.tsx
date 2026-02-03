@@ -9,7 +9,7 @@ import { Assignment } from '@/types/assignment';
 import { Course } from '@/types/course';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, ClipboardList, LogOut } from 'lucide-react';
+import { LayoutDashboard, BookOpen, ClipboardList, MessageSquare, LogOut } from 'lucide-react';
 
 function TeacherAssignmentsContent() {
   const { logout } = useAuth();
@@ -123,6 +123,7 @@ function TeacherAssignmentsContent() {
     { href: '/teacher/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/teacher/courses', label: 'Courses', icon: BookOpen },
     { href: '/teacher/assignments', label: 'Assignments', icon: ClipboardList },
+    { href: '/teacher/messages', label: 'Messages', icon: MessageSquare },
   ];
 
   return (

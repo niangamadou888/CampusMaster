@@ -194,6 +194,7 @@ function TeacherForumContent() {
     { href: '/teacher/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/teacher/courses', label: 'Courses', icon: BookOpen },
     { href: '/teacher/assignments', label: 'Assignments', icon: ClipboardList },
+    { href: '/teacher/messages', label: 'Messages', icon: MessageSquare },
   ];
 
   if (loading && !posts.length) {
