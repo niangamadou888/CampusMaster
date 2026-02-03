@@ -7,11 +7,14 @@ import { authApi } from '@/services/api';
 import { User } from '@/types/auth';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Link from 'next/link';
-import { LayoutDashboard, Users, Building2, Calendar, BookText, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, Calendar, BookText, Bell, LogOut } from 'lucide-react';
+import NotificationBell from '@/components/NotificationBell';
+import { useNotifications } from '@/context/NotificationContext';
 
 function AdminDashboardContent() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
+  const { unreadCount } = useNotifications();
   const [userEmail, setUserEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -159,6 +162,7 @@ function AdminDashboardContent() {
     { href: '/admin/departments', label: 'Departments', icon: Building2 },
     { href: '/admin/semesters', label: 'Semesters', icon: Calendar },
     { href: '/admin/subjects', label: 'Subjects', icon: BookText },
+    { href: '/admin/notifications', label: 'Notifications', icon: Bell },
   ];
 
   return (
@@ -192,6 +196,11 @@ function AdminDashboardContent() {
               >
                 <Icon className="h-5 w-5" />
                 <span>{item.label}</span>
+                {item.href === '/admin/notifications' && unreadCount > 0 && (
+                  <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -223,10 +232,10 @@ function AdminDashboardContent() {
               className="w-96 rounded-lg border border-slate-200/60 bg-white/80 px-4 py-2 text-sm text-slate-900 outline-none transition focus:border-red-300 focus:ring-2 focus:ring-red-100"
             />
             <div className="flex items-center gap-3">
+              <NotificationBell notificationsHref="/admin/notifications" />
               <span className="hidden text-sm text-slate-700 sm:inline">
                 Welcome, {user?.userFirstName}
               </span>
-
             </div>
           </div>
         </nav>

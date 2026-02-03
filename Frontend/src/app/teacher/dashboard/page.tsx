@@ -5,11 +5,14 @@ import { useAuth } from '@/context/AuthContext';
 import { usePathname } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, ClipboardList, MessageSquare, LogOut } from 'lucide-react';
+import { LayoutDashboard, BookOpen, ClipboardList, MessageSquare, Bell, LogOut, GraduationCap } from 'lucide-react';
+import NotificationBell from '@/components/NotificationBell';
+import { useNotifications } from '@/context/NotificationContext';
 
 function TeacherDashboardContent() {
   const { user, logout, updateUser } = useAuth();
   const pathname = usePathname();
+  const { unreadCount } = useNotifications();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     firstName: user?.userFirstName || '',
@@ -64,7 +67,9 @@ function TeacherDashboardContent() {
     { href: '/teacher/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/teacher/courses', label: 'Courses', icon: BookOpen },
     { href: '/teacher/assignments', label: 'Assignments', icon: ClipboardList },
+    { href: '/teacher/grades', label: 'Grades', icon: GraduationCap },
     { href: '/teacher/messages', label: 'Messages', icon: MessageSquare },
+    { href: '/teacher/notifications', label: 'Notifications', icon: Bell },
   ];
 
   return (
@@ -100,6 +105,11 @@ function TeacherDashboardContent() {
               >
                 <Icon className="h-5 w-5" />
                 <span>{item.label}</span>
+                {item.href === '/teacher/notifications' && unreadCount > 0 && (
+                  <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -134,6 +144,7 @@ function TeacherDashboardContent() {
               className="w-96 rounded-lg border border-slate-200/60 bg-white/80 px-4 py-2 text-sm text-slate-900 outline-none transition focus:border-purple-300 focus:ring-2 focus:ring-purple-100"
             />
             <div className="flex items-center gap-3">
+              <NotificationBell notificationsHref="/teacher/notifications" />
               <span className="hidden text-sm text-slate-700 sm:inline">
                 Welcome, {user?.userFirstName}
               </span>
